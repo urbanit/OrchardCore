@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+//using Microsoft.AspNetCore.Http.Features;
 
 namespace OrchardCore.Cms.Web
 {
@@ -8,6 +9,7 @@ namespace OrchardCore.Cms.Web
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.Configure<FormOptions>(x => x.ValueCountLimit = 4096);
             services.AddOrchardCms();
         }
 
