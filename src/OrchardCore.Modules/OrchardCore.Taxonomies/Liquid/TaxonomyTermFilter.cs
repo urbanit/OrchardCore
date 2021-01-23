@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Fluid;
 using Fluid.Values;
 using Newtonsoft.Json.Linq;
+using OrchardCore.ContentLocalization.Services;
 using OrchardCore.ContentManagement;
 using OrchardCore.Liquid;
+using OrchardCore.Localization;
 using OrchardCore.Taxonomies.Fields;
 
 namespace OrchardCore.Taxonomies.Liquid
@@ -14,6 +16,18 @@ namespace OrchardCore.Taxonomies.Liquid
     public class TaxonomyTermsFilter : ILiquidFilter
     {
         private readonly IContentManager _contentManager;
+        private readonly ILocalizationEntries _localizationEntries;
+        private readonly ILocalizationService _localizationService;
+
+        public TaxonomyTermsFilter(
+            IContentManager contentManager,
+            ILocalizationEntries localizationEntries,
+            ILocalizationService localizationService)
+        {
+            _contentManager = contentManager;
+            _localizationEntries = localizationEntries;
+            _localizationService = localizationService;
+        }
 
         public TaxonomyTermsFilter(IContentManager contentManager)
         {
@@ -24,6 +38,7 @@ namespace OrchardCore.Taxonomies.Liquid
         {
             string taxonomyContentItemId = null;
             string[] termContentItemIds = null;
+            string localizedCulture = null;
 
             if (input.Type == FluidValues.Object && input.ToObjectValue() is TaxonomyField field)
             {
@@ -37,6 +52,7 @@ namespace OrchardCore.Taxonomies.Liquid
             {
                 taxonomyContentItemId = jobj["TaxonomyContentItemId"].Value<string>();
                 termContentItemIds = ((JArray)jobj["TermContentItemIds"]).Values<string>().ToArray();
+                localizedCulture = jobj.Root["LocalizationPart"]["Culture"].Value<string>();
             }
             else if (input.Type == FluidValues.Array)
             {
@@ -55,11 +71,33 @@ namespace OrchardCore.Taxonomies.Liquid
                 return null;
             }
 
+            JArray taxonomyTerms = taxonomy.Content.TaxonomyPart.Terms;
+            if (!String.IsNullOrEmpty(localizedCulture))
+            {
+                (var found, var initialLocalization) = await _localizationEntries.TryGetLocalizationAsync(taxonomyContentItemId);
+                if (found)
+                {
+                    if (initialLocalization.Culture.ToLowerInvariant() != localizedCulture.ToLowerInvariant())
+                    {
+                        var localizations = await _localizationEntries.GetLocalizationsAsync(initialLocalization.LocalizationSet);
+                        foreach (var localization in localizations)
+                        {
+                            if (localization.Culture.ToLowerInvariant() == localizedCulture.ToLowerInvariant())
+                            {
+                                taxonomyContentItemId = localization.ContentItemId;
+                                var localizedTaxonomy = await contentManager.GetAsync(taxonomyContentItemId);
+                                taxonomyTerms.Merge(localizedTaxonomy.Content.TaxonomyPart.Terms);
+                            }
+                        }
+                    }
+                }
+            }
             var terms = new List<ContentItem>();
 
             foreach (var termContentItemId in termContentItemIds)
             {
-                var term = TaxonomyOrchardHelperExtensions.FindTerm(taxonomy.Content.TaxonomyPart.Terms as JArray, termContentItemId);
+                //var term = TaxonomyOrchardHelperExtensions.FindTerm(taxonomy.Content.TaxonomyPart.Terms as JArray, termContentItemId);
+                var term = TaxonomyOrchardHelperExtensions.FindTerm(taxonomyTerms, termContentItemId);
 
                 if (term != null)
                 {
