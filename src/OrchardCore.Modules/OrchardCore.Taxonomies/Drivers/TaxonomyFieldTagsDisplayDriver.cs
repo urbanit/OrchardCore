@@ -20,7 +20,7 @@ using OrchardCore.Taxonomies.ViewModels;
 namespace OrchardCore.Taxonomies.Drivers
 {
     public class TaxonomyFieldTagsDisplayDriver : ContentFieldDisplayDriver<TaxonomyField>
-    {      
+    {
         private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()
@@ -33,6 +33,7 @@ namespace OrchardCore.Taxonomies.Drivers
             IContentManager contentManager,
             IStringLocalizer<TaxonomyFieldTagsDisplayDriver> s)
         {
+            
             _contentManager = contentManager;
             S = s;
         }
