@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Routing;
+//using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
@@ -22,6 +23,7 @@ using OrchardCore.Navigation;
 using OrchardCore.Security.Permissions;
 using OrchardCore.Settings;
 using OrchardCore.Settings.Deployment;
+
 
 namespace OrchardCore.Admin
 {
@@ -59,6 +61,7 @@ namespace OrchardCore.Admin
             services.AddSingleton<IPageRouteModelProvider, AdminPageRouteModelProvider>();
 
             services.Configure<AdminOptions>(_configuration.GetSection("OrchardCore_Admin"));
+            //services.Configure<FormOptions>(options => options.ValueCountLimit = 4096);
         }
 
         public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes, IServiceProvider serviceProvider)
