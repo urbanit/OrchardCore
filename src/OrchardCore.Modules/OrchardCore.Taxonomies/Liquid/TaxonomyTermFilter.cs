@@ -29,11 +29,6 @@ namespace OrchardCore.Taxonomies.Liquid
             _localizationService = localizationService;
         }
 
-        public TaxonomyTermsFilter(IContentManager contentManager)
-        {
-            _contentManager = contentManager;
-        }
-
         public async ValueTask<FluidValue> ProcessAsync(FluidValue input, FilterArguments arguments, LiquidTemplateContext ctx)
         {
             string taxonomyContentItemId = null;
@@ -85,7 +80,7 @@ namespace OrchardCore.Taxonomies.Liquid
                             if (localization.Culture.ToLowerInvariant() == localizedCulture.ToLowerInvariant())
                             {
                                 taxonomyContentItemId = localization.ContentItemId;
-                                var localizedTaxonomy = await contentManager.GetAsync(taxonomyContentItemId);
+                                var localizedTaxonomy = await _contentManager.GetAsync(taxonomyContentItemId);
                                 taxonomyTerms.Merge(localizedTaxonomy.Content.TaxonomyPart.Terms);
                             }
                         }
