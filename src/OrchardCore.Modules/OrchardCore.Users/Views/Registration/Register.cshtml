@@ -4,43 +4,66 @@
     ViewLayout = "Layout__Login";
 }
 
-<h2>@T["Register"]</h2>
-<form asp-controller="Registration" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-    <h4>@T["Create a new account."]</h4>
-    <hr />
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="UserName" class="col-md-3 control-label">@T["Username"]</label>
-        <div class="col-md-9">
-            <input asp-for="UserName" class="form-control" autofocus />
-            <span asp-validation-for="UserName" class="text-danger"></span>
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form asp-controller="Registration" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+            <h4>Εγγραφή / @T["Register"]</h4>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label">@T["Username"]</label>
+                <input asp-for="UserName" class="form-control" autofocus />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label">@T["Email"]</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label">@T["Password"]</label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label">@T["Confirm password"]</label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            @await RenderSectionAsync("AfterRegister", required: false)
+            <div class="form-group">
+                <p class="text-muted small">Κάνοντας εγγραφή, συμφωνείτε με τους <a href="/%CE%BF%CF%81%CE%BF%CE%B9-%CF%87%CF%81%CE%B7%CF%83%CE%B7%CF%82" target="_blank">Όρους Χρήσης</a></p>
+                <p class="text-muted small">By registering, you agree with <a href="/terms-and-conditions" target="_blank">Terms and Conditions</a></p>
+                <button type="submit" class="btn btn-primary">@T["Register"]</button>
+            </div>
+        </form>
+        <div class="row mt-5">
+            <div class="col-sm-1">
+                <img src="/media/site/el_.png" title="el" alt="el flag ">
+            </div>
+            <div class="col-sm-11">
+                <div class="alert alert-secondary">
+                    <ul class="text-muted small">
+                        <li>username: μία λέξη χωρίς κενά</li>
+                        <li>email: θα σας σταλεί ένα μήνυμα για την επιβεβαίωση του email σας</li>
+                        <li>Αν θέλετε να έχετε πλήρη πρόσβαση στο περιεχόμενο του ered.gr, θα πρεπει να γίνετε συνδρομητής αποκτώντας μία <a href="/el/subscription-packages" target="_blank">συνδρομή</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-sm-1">
+                <img src="/media/site/en_.png" title="en" alt="en flag ">
+            </div>
+            <div class="col-sm-11">
+                <div class="alert alert-secondary">
+                    <ul class="text-muted small">
+                        <li>username: no spaces allowed</li>
+                        <li>email: a message will be sent to confirm your email</li>
+                        <li>For full access to ered.gr content, be a subscriber by purchasing one of available <a href="/en/subscription-packages" target="_blank">packages</a></li>
+                        </ul>
+</div>
+            </div>
         </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Email" class="col-md-3 control-label">@T["Email"]</label>
-        <div class="col-md-9">
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="Password" class="col-md-3 control-label">@T["Password"]</label>
-        <div class="col-md-9">
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="ConfirmPassword" class="col-md-3 control-label">@T["Confirm password"]</label>
-        <div class="col-md-9">
-            <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        </div>
-    </div>
-    @await RenderSectionAsync("AfterRegister", required: false)
-    <div class="form-group">
-        <div class="col-md-offset-3 col-md-9">
-            <button type="submit" class="btn btn-primary">@T["Register"]</button>
-        </div>
-    </div>
-</form>
+</div>
