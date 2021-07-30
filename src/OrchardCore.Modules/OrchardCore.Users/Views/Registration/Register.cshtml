@@ -6,63 +6,73 @@
 
 <div class="row">
     <div class="col-md-6 offset-md-3">
+        <div class="row border-bottom pt-0 mt-0 pb-3 mb-3">
+            <div class="col-6 my-2">
+                <a href="htttps://eredblog.azurewebsites.net">
+                    <img src="/media/site/ered_logo.png" class="img-fluid" alt="" title="">
+                </a>
+            </div><div class="col-6 my-2 text-right">
+                <a href="#" class="content-el switch-content"><img src="/media/site/en_.png" title="en" alt="en flag"></a>
+                <a href="#" class="content-en d-none switch-content"><img src="/media/site/el_.png" title="el" alt="el flag"></a>
+            </div>
+        </div>
         <form asp-controller="Registration" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-            <h4>Εγγραφή / @T["Register"]</h4>
+            <h4 class="content-el">Εγγραφή</h4>
+            <h4 class="content-en d-none">@T["Register"]</h4>
+            <div class="small text-muted content-el">
+                Συμπληρώστε τα πεδία της φόρμας που ακολουθεί και κάντε κλικ στην [Εγγραφή].
+            </div>
+            <div class="small text-muted content-en d-none">
+                Fill in the fields of the form below and click [Register].
+            </div>
             <hr />
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="UserName" class="control-label">@T["Username"]</label>
-                <input asp-for="UserName" class="form-control" autofocus />
+                <label asp-for="UserName" class="control-label content-el">@T["Username"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Username πληκτρολογήστε ΜΙΑ ΛΕΞΗ XΩΡΙΣ ΚΕΝΑ" data-placement="right"></i></label>
+                <label asp-for="UserName" class="control-label content-en d-none">@T["Username"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Username should be ONE WORD, WITHOUT SPACES" data-placement="right"></i></label>
+                <input asp-for="UserName" class="form-control" autofocus required />
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Email" class="control-label">@T["Email"]</label>
-                <input asp-for="Email" class="form-control" />
+                <label asp-for="Email" class="control-label content-el">@T["Email"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Εmail πληκτρολογήστε το Email σας." data-placement="right"></i></label>
+                <label asp-for="Email" class="control-label content-en d-none">@T["Email"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Enter your Email in the Email field." data-placement="right"></i></label>
+                <input asp-for="Email" class="form-control" required />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Password" class="control-label">@T["Password"]</label>
-                <input asp-for="Password" class="form-control" />
+                <label asp-for="Password" class="control-label content-el">@T["Password"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Κωδικός Πρόσβασης πληκτρολογήστε ένα δικό σας κωδικό (password) Ο κώδικός θα πρέπει να περιέχει ΜΟΝΟ λατινικούς χαρακτήρες τουλάχιστον ένα αριθμό ένα πεζο γράμμα και ένα σύμβολα" data-placement="right"></i></label>
+                <label asp-for="Password" class="control-label content-en d-none">@T["Password"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Enter your own password in the Password field. The password should ONLY consist of Latin characters, have at least one number, one lower case letter and one symbol." data-placement="right"></i></label>
+                <input asp-for="Password" class="form-control" required />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ConfirmPassword" class="control-label">@T["Confirm password"]</label>
-                <input asp-for="ConfirmPassword" class="form-control" />
+                <label asp-for="ConfirmPassword" class="control-label">@T["Confirm password"]<span class="text-danger"><sup>*</sup></span></label>
+                <input asp-for="ConfirmPassword" class="form-control" required />
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
             @await RenderSectionAsync("AfterRegister", required: false)
             <div class="form-group">
-                <p class="text-muted small">Κάνοντας εγγραφή, συμφωνείτε με τους <a href="/%CE%BF%CF%81%CE%BF%CE%B9-%CF%87%CF%81%CE%B7%CF%83%CE%B7%CF%82" target="_blank">Όρους Χρήσης</a></p>
-                <p class="text-muted small">By registering, you agree with <a href="/terms-and-conditions" target="_blank">Terms and Conditions</a></p>
+                <p class="text-muted small content-el">Κάνοντας εγγραφή, συμφωνείτε με τους <a href="/%CE%BF%CF%81%CE%BF%CE%B9-%CF%87%CF%81%CE%B7%CF%83%CE%B7%CF%82" target="_blank">Όρους Χρήσης</a></p>
+                <p class="text-muted small content-en d-none">By registering, you agree with <a href="/terms-and-conditions" target="_blank">Terms and Conditions</a></p>
                 <button type="submit" class="btn btn-primary">@T["Register"]</button>
             </div>
         </form>
-        <div class="row mt-5">
-            <div class="col-sm-1">
-                <img src="/media/site/el_.png" title="el" alt="el flag ">
-            </div>
-            <div class="col-sm-11">
+        <div class="row mt-5 content-el">
+            <div class="col-sm-12">
                 <div class="alert alert-secondary">
-                    <ul class="text-muted small">
-                        <li>username: μία λέξη χωρίς κενά</li>
-                        <li>email: θα σας σταλεί ένα μήνυμα για την επιβεβαίωση του email σας</li>
-                        <li>Αν θέλετε να έχετε πλήρη πρόσβαση στο περιεχόμενο του ered.gr, θα πρεπει να γίνετε συνδρομητής αποκτώντας μία <a href="/el/subscription-packages" target="_blank">συνδρομή</a></li>
-                    </ul>
+                    <span class="text-muted small">
+                        Σε σύντομο χρονικό διάστημα θα σας στείλουμε ένα email για να επιβεβαιώσουμε την εγγραφή σας στις υπηρεσίες μας.
+                    </span>
                 </div>
             </div>
         </div>
-        <div class="row mt-2">
-            <div class="col-sm-1">
-                <img src="/media/site/en_.png" title="en" alt="en flag ">
-            </div>
-            <div class="col-sm-11">
+        <div class="row mt-5 content-en d-none">
+            <div class="col-sm-12">
                 <div class="alert alert-secondary">
-                    <ul class="text-muted small">
-                        <li>username: no spaces allowed</li>
-                        <li>email: a message will be sent to confirm your email</li>
-                        <li>For full access to ered.gr content, be a subscriber by purchasing one of available <a href="/en/subscription-packages" target="_blank">packages</a></li>
-                        </ul>
-</div>
+                    <span class="text-muted small">
+                        You will soon receive an email to confirm your registration in our services.
+                    </span>
+                </div>
             </div>
         </div>
     </div>

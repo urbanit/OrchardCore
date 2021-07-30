@@ -2,29 +2,30 @@
     ViewLayout = "Layout__Login";
 }
 
-<h2>Επιβεβαίωση Email / @T["Email confirmation"]</h2>
 <div class="row">
-    <div class="col-sm-1">
-        <img src="/media/site/el_.png" title="el" alt="el flag ">
+    <div class="col-md-6 offset-md-3">
+        <div class="row border-bottom pt-0 mt-0 pb-3 mb-3">
+            <div class="col-6 my-2">
+                <a href="htttps://eredblog.azurewebsites.net">
+                    <img src="/media/site/ered_logo.png" class="img-fluid" alt="" title="">
+                </a>
+            </div><div class="col-6 my-2 text-right">
+                <a href="#" class="content-el switch-content"><img src="/media/site/en_.png" title="en" alt="en flag"></a>
+                <a href="#" class="content-en d-none switch-content"><img src="/media/site/el_.png" title="el" alt="el flag"></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h4 class="content-el">Επιβεβαίωση Email</h4>
+                <h4 class="content-en d-none">@T["Email confirmation"]</h4>
+                <hr />
+                <div class="alert alert-secondary content-el">
+                    Ευχαριστούμε για την επιβεβαίωση του email. Κάντε <a href="@Url.Content("~/Login?ReturnUrl=/customer")">είσοδο</a> για να συμπληρώσετε τα στοιχεία σας και να ολοκληρωθεί η εγγραφή σας.
+                </div>
+                <div class="alert alert-secondary content-en d-none">
+                    @T["Thank you for confirming your email."] Please <a href="@Url.Content("~/Login?ReturnUrl=/customer")">login</a> and fill in the required details in order to finish the registration.
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-sm-11">
-        <div class="alert alert-secondary">Η εγγραφή σας στο ered.gr ολοκληρώθηκε με επιτυχία. Πατήστε <a href="@Url.Content("~/Login?ReturnUrl=/customer")">εδώ</a> για συνέχεια.</div>
-    </div>
-</div>
-<div class="row mt-2">
-    <div class="col-sm-1">
-        <img src="/media/site/en_.png" title="en" alt="en flag ">
-    </div>
-    <div class="col-sm-11">
-        <div class="alert alert-secondary">Your registration at ered.gr was successful. Click <a href="@Url.Content("~/Login?ReturnUrl=/customer")">here</a> to continue.</div>
-    </div>
-</div>
-
-<div>
-    <p>
-        @T["Thank you for confirming your email."] Please login and fill in the required details in order to finish the registration.
-    </p>
-    <p>
-        Click <a href="@Url.Content("~/Login?ReturnUrl=/customer")">here</a> για να συμπληρώσετε τα στοιχεία σας.
-    </p>
 </div>
