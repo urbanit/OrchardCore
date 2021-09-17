@@ -115,7 +115,7 @@ namespace OrchardCore.Layers.Controllers
                 return Forbid();
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Create()
@@ -147,7 +147,7 @@ namespace OrchardCore.Layers.Controllers
                     Name = model.Name,
                     Description = model.Description
                 };
-                
+
                 layer.LayerRule = new Rule();
                 _conditionIdGenerator.GenerateUniqueId(layer.LayerRule);
 
@@ -155,7 +155,7 @@ namespace OrchardCore.Layers.Controllers
 
                 await _layerService.UpdateAsync(layers);
 
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             return View(model);
@@ -186,6 +186,7 @@ namespace OrchardCore.Layers.Controllers
                 var condition = factory.Create();
                 dynamic thumbnail = await _conditionDisplayManager.BuildDisplayAsync(condition, _updateModelAccessor.ModelUpdater, "Thumbnail");
                 thumbnail.Condition = condition;
+                thumbnail.TargetUrl = Url.ActionLink("Create", "LayerRule", new { name = name, type = factory.Name });
                 thumbnails.Add(factory.Name, thumbnail);
             }
 
@@ -226,7 +227,7 @@ namespace OrchardCore.Layers.Controllers
 
                 await _layerService.UpdateAsync(layers);
 
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             return View(model);
@@ -262,7 +263,7 @@ namespace OrchardCore.Layers.Controllers
                 _notifier.Error(H["The layer couldn't be deleted: you must remove any associated widgets first."]);
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -327,7 +328,7 @@ namespace OrchardCore.Layers.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
         }
 

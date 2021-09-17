@@ -85,7 +85,7 @@
             <section>
                 <h4>@T["Use another service to log in"]</h4>
                 <hr />
-                <form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                <form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal no-multisubmit">
                     <div>
                         <p>
                             @foreach (var provider in loginProviders)
