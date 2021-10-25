@@ -4,76 +4,124 @@
     ViewLayout = "Layout__Login";
 }
 
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <div class="row border-bottom pt-0 mt-0 pb-3 mb-3">
-            <div class="col-6 my-2">
-                <a href="htttps://eredblog.azurewebsites.net">
-                    <img src="/media/site/ered_logo.png" class="img-fluid" alt="" title="">
-                </a>
-            </div><div class="col-6 my-2 text-right">
-                <a href="#" class="content-el switch-content"><img src="/media/site/en_.png" title="en" alt="en flag"></a>
-                <a href="#" class="content-en d-none switch-content"><img src="/media/site/el_.png" title="el" alt="el flag"></a>
-            </div>
-        </div>
-        <form asp-controller="Registration" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-            <h4 class="content-el">Εγγραφή</h4>
-            <h4 class="content-en d-none">@T["Register"]</h4>
-            <div class="small text-muted content-el">
-                Συμπληρώστε τα πεδία της φόρμας που ακολουθεί και κάντε κλικ στην [Εγγραφή].
-            </div>
-            <div class="small text-muted content-en d-none">
-                Fill in the fields of the form below and click [Register].
-            </div>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label content-el">@T["Username"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Username πληκτρολογήστε ΜΙΑ ΛΕΞΗ XΩΡΙΣ ΚΕΝΑ" data-placement="right"></i></label>
-                <label asp-for="UserName" class="control-label content-en d-none">@T["Username"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Username should be ONE WORD, WITHOUT SPACES" data-placement="right"></i></label>
-                <input asp-for="UserName" class="form-control" autofocus required />
-                <span asp-validation-for="UserName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label content-el">@T["Email"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Εmail πληκτρολογήστε το Email σας." data-placement="right"></i></label>
-                <label asp-for="Email" class="control-label content-en d-none">@T["Email"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Enter your Email in the Email field." data-placement="right"></i></label>
-                <input asp-for="Email" class="form-control" required />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label content-el">@T["Password"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Κωδικός Πρόσβασης πληκτρολογήστε ένα δικό σας κωδικό (password) Ο κώδικός θα πρέπει να περιέχει ΜΟΝΟ λατινικούς χαρακτήρες τουλάχιστον ένα αριθμό ένα πεζο γράμμα και ένα σύμβολα" data-placement="right"></i></label>
-                <label asp-for="Password" class="control-label content-en d-none">@T["Password"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Enter your own password in the Password field. The password should ONLY consist of Latin characters, have at least one number, one lower case letter and one symbol." data-placement="right"></i></label>
-                <input asp-for="Password" class="form-control" required />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ConfirmPassword" class="control-label">@T["Confirm password"]<span class="text-danger"><sup>*</sup></span></label>
-                <input asp-for="ConfirmPassword" class="form-control" required />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            @await RenderSectionAsync("AfterRegister", required: false)
-            <div class="form-group">
-                <p class="text-muted small content-el">Κάνοντας εγγραφή, συμφωνείτε με τους <a href="/%CE%BF%CF%81%CE%BF%CE%B9-%CF%87%CF%81%CE%B7%CF%83%CE%B7%CF%82" target="_blank">Όρους Χρήσης</a></p>
-                <p class="text-muted small content-en d-none">By registering, you agree with <a href="/terms-and-conditions" target="_blank">Terms and Conditions</a></p>
-                <button type="submit" class="btn btn-primary">@T["Register"]</button>
-            </div>
-        </form>
-        <div class="row mt-5 content-el">
-            <div class="col-sm-12">
-                <div class="alert alert-secondary">
-                    <span class="text-muted small">
-                        Σε σύντομο χρονικό διάστημα θα σας στείλουμε ένα email για να επιβεβαιώσουμε την εγγραφή σας στις υπηρεσίες μας.
-                    </span>
+        <div class="container mx-auto">
+            <div class="row pb-2 mt-4">
+                <div class="col-4 col-md-3 offset-md-2">
+                    <a href="/" class="content-el">
+                        <img src="/media/site/ered_logo.png" class="img-fluid" alt="" title="">
+                    </a>
+                    <a href="/en" class="content-en d-none">
+                        <img src="/media/site/ered_logo.png" class="img-fluid" alt="" title="">
+                    </a>                    
                 </div>
+                <div class="col-8 col-md-5 text-right">
+                    <a href="#" class="content-el switch-content"><img src="/media/site/en_.png" title="en" alt="en flag"></a>
+                    <a href="#" class="content-en d-none switch-content"><img src="/media/site/el_.png" title="el" alt="el flag"></a>
+                </div>               
             </div>
-        </div>
-        <div class="row mt-5 content-en d-none">
-            <div class="col-sm-12">
-                <div class="alert alert-secondary">
-                    <span class="text-muted small">
-                        You will soon receive an email to confirm your registration in our services.
-                    </span>
+            <div class="row">
+                <div class="col-md-8 offset-md-2 border-bottom"></div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-5 offset-md-2">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header">
+                            <h5 class="my-0 font-weight-normal g-book content-el">Εγγραφή</h5>
+                            <h5 class="my-0 font-weight-normal g-book content-en d-none">Register</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-controller="Registration" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                                <div class="small text-muted content-el">
+                                    Συμπληρώστε τα πεδία της φόρμας που ακολουθεί και κάντε κλικ στην [Εγγραφή].
+                                </div>
+                                <div class="small text-muted content-en d-none">
+                                    Fill in the fields of the form below and click [Register].
+                                </div>
+                                <hr />
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="form-group">
+                                    <label asp-for="UserName" class="control-label content-el">@T["Username"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Username πληκτρολογήστε ΜΙΑ ΛΕΞΗ XΩΡΙΣ ΚΕΝΑ" data-placement="right"></i></label>
+                                    <label asp-for="UserName" class="control-label content-en d-none">@T["Username"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Username should be ONE WORD, WITHOUT SPACES" data-placement="right"></i></label>
+                                    <input asp-for="UserName" class="form-control" autofocus required />
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Email" class="control-label content-el">@T["Email"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Εmail πληκτρολογήστε το Email σας." data-placement="right"></i></label>
+                                    <label asp-for="Email" class="control-label content-en d-none">@T["Email"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Enter your Email in the Email field." data-placement="right"></i></label>
+                                    <input asp-for="Email" class="form-control" required />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Password" class="control-label content-el">@T["Password"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Στο πεδίο Κωδικός Πρόσβασης πληκτρολογήστε ένα δικό σας κωδικό (password) Ο κώδικός θα πρέπει να περιέχει ΜΟΝΟ λατινικούς χαρακτήρες τουλάχιστον ένα αριθμό ένα πεζο γράμμα και ένα σύμβολα" data-placement="right"></i></label>
+                                    <label asp-for="Password" class="control-label content-en d-none">@T["Password"]<span class="text-danger"><sup>*</sup></span>&nbsp;<i class="fas fa-info-circle tooltip-wrapper" data-toggle="tooltip" title="Enter your own password in the Password field. The password should ONLY consist of Latin characters, have at least one number, one lower case letter and one symbol." data-placement="right"></i></label>
+                                    <input asp-for="Password" class="form-control" required />
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="ConfirmPassword" class="control-label">@T["Confirm password"]<span class="text-danger"><sup>*</sup></span></label>
+                                    <input asp-for="ConfirmPassword" class="form-control" required />
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                </div>
+                                @await RenderSectionAsync("AfterRegister", required: false)
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="customSwitch1">
+                                        <label class="custom-control-label content-el" for="customSwitch1">
+                                            Κάνοντας εγγραφή, συμφωνείτε με τους <a href="/%CE%BF%CF%81%CE%BF%CE%B9-%CF%87%CF%81%CE%B7%CF%83%CE%B7%CF%82" target="_blank">Όρους Χρήσης</a>                                        
+                                        </label>
+                                        <label class="custom-control-label content-en d-none" for="customSwitch1">
+                                            By registering, you agree with <a href="/terms-and-conditions" target="_blank">Terms and Conditions</a>                                        
+                                        </label>                                        
+                                    </div>
+                                    <button type="submit" class="mt-3 btn btn-outline-danger" disabled="true" id="btn-submit">@T["Register"]</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <span class="text-muted small content-el">
+                                Σε σύντομο χρονικό διάστημα θα σας στείλουμε ένα email για να επιβεβαιώσουμε την εγγραφή σας στις υπηρεσίες μας.
+                            </span>
+                            <span class="text-muted small content-en d-none">
+                                You will soon receive an email to confirm your registration in our services.
+                            </span>                           
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="content-el">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header text-white bg-danger">
+                                <h5 class="my-0 font-weight-normal g-book">Είσοδος</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Είστε ήδη συνδρομητής?</p>
+                                <a class="btn btn-outline-danger" href="/login">Είσοδος</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-en d-none">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header text-white bg-danger">
+                                <h5 class="my-0 font-weight-normal g-book">Login</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Already a Subscriber?</p>
+                                <a class="btn btn-outline-danger" href="/login">Login</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script at="Foot">
+document.querySelector('#customSwitch1').addEventListener('change',function(){
+    if(document.querySelector('#customSwitch1').checked){
+         document.querySelector('#btn-submit').removeAttribute('disabled');
+    }else{
+        document.querySelector('#btn-submit').setAttribute('disabled', true);
+    }
+});
+</script>

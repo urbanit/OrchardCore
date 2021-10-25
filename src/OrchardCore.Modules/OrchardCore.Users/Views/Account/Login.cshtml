@@ -21,60 +21,90 @@
 <div class="row">
     @if (!disableLocalLogin)
     {
-        <div class="col-md-6 @(loginProviders.Count == 0 ? "offset-md-3" : String.Empty)">
-            <div class="row border-bottom pt-0 mt-0 pb-3 mb-3">
-                <div class="col-6 my-2">
-                    <a href="htttps://eredblog.azurewebsites.net">
+        <div class="container mx-auto">
+            <div class="row pb-2 mt-4">
+                <div class="col-4 col-md-3 offset-md-2">
+                    <a href="/" class="content-el">
                         <img src="/media/site/ered_logo.png" class="img-fluid" alt="" title="">
                     </a>
-                </div><div class="col-6 my-2 text-right">
+                    <a href="/en" class="content-en d-none">
+                        <img src="/media/site/ered_logo.png" class="img-fluid" alt="" title="">
+                    </a>                    
+                </div>
+                <div class="col-8 col-md-5 text-right">
                     <a href="#" class="content-el switch-content"><img src="/media/site/en_.png" title="en" alt="en flag"></a>
                     <a href="#" class="content-en d-none switch-content"><img src="/media/site/el_.png" title="el" alt="el flag"></a>
+                </div>               
+            </div>
+            <div class="row">
+                <div class="col-md-8 offset-md-2 border-bottom"></div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-5 offset-md-2">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header">
+                            <h5 class="my-0 font-weight-normal g-book content-el">Είσοδος</h5>
+                            <h5 class="my-0 font-weight-normal g-book content-en d-none">Login</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="auth-form">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="form-group">
+                                    <label asp-for="UserName">@T["Username or email address"]</label>
+                                    <input asp-for="UserName" class="form-control" autofocus tabindex="1" />
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Password">
+                                        @T["Password"]
+                                        @if (allowResetPassword)
+                                        {
+                                            <a asp-controller="ResetPassword" asp-action="ForgotPassword" class="label-link small pl-5 text-muted content-el">Ξεχάσατε τον κωδικό σας?</a>
+                                            <a asp-controller="ResetPassword" asp-action="ForgotPassword" class="label-link small pl-5 text-muted content-en d-none">@T["Forgot your password?"]</a>
+                                        }
+                                    </label>
+                                    <div class="input-group">
+                                        <input asp-for="Password" class="form-control" tabindex="2" />
+                                            <button tabindex="-1" class="btn btn-secondary" type="button" id="togglePassword"><i class="icon fa fa-eye"></i></button>
+                                    </div>
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                                <div class="form-group custom-control custom-checkbox">
+                                    <input asp-for="RememberMe" class="custom-control-input" tabindex="3">
+                                    <label asp-for="RememberMe" class="custom-control-label content-el">Να με θυμάσαι</label>
+                                    <label asp-for="RememberMe" class="custom-control-label content-en d-none">@T["Remember me"]</label>
+                                </div>
+                                @await RenderSectionAsync("AfterLogin", required: false)
+                                <button type="submit" class="btn btn-outline-danger" tabindex="4">@T["Log in"]</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="content-el">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header text-white bg-danger">
+                                <h5 class="my-0 font-weight-normal g-book">Εγγραφή</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Εγγραφή νέου συνδρομητή</p>
+                                <a class="btn btn-outline-danger" href="/register">Εγγραφή</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-en d-none">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header text-white bg-danger">
+                                <h5 class="my-0 font-weight-normal g-book">Register</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">New Subscriber</p>
+                                <a class="btn btn-outline-danger" href="/register">Register</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="auth-form">
-                <h4 class="content-el">Είσοδος</h4>
-                <h4 class="content-en d-none">@T["Log in"]</h4>
-                <hr />
-                <div asp-validation-summary="All" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="UserName">@T["Username or email address"]</label>
-                    <input asp-for="UserName" class="form-control" autofocus tabindex="1" />
-                    <span asp-validation-for="UserName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Password">
-                        @T["Password"]
-                        @if (allowResetPassword)
-                        {
-                            <a asp-controller="ResetPassword" asp-action="ForgotPassword" class="label-link small pl-5 text-muted content-el">Ξεχάσατε τον κωδικό σας?</a>
-                            <a asp-controller="ResetPassword" asp-action="ForgotPassword" class="label-link small pl-5 text-muted content-en d-none">@T["Forgot your password?"]</a>
-                        }
-                    </label>
-                    <div class="input-group">
-                        <input asp-for="Password" class="form-control" tabindex="2" />
-                            <button tabindex="-1" class="btn btn-secondary" type="button" id="togglePassword"><i class="icon fa fa-eye"></i></button>
-                    </div>
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="form-group custom-control custom-checkbox">
-                    <input asp-for="RememberMe" class="custom-control-input" tabindex="3">
-                    <label asp-for="RememberMe" class="custom-control-label content-el">Να με θυμάσαι</label>
-                    <label asp-for="RememberMe" class="custom-control-label content-en d-none">@T["Remember me"]</label>
-                </div>
-                @await RenderSectionAsync("AfterLogin", required: false)
-                <div></div>
-                <button type="submit" class="btn btn-primary" tabindex="4">@T["Log in"]</button>
-                @if (userCanRegister)
-                {
-                    <div class="mt-5 content-el">
-                        <a asp-controller="Registration" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">Εγγραφή ως νέος χρήστης</a>
-                    </div>
-                    <div class="mt-5 content-en d-none">
-                        <a asp-controller="Registration" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">@T["Register as a new user"]</a>
-                    </div>
-                }
-            </form>
         </div>
     }
     @if (loginProviders.Count > 0)
