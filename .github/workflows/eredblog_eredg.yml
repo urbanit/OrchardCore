@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '5.0.x'
-          include-prerelease: false
+          include-prerelease: true
 
       - name: Build with dotnet
         run: dotnet build -c Debug -f net5.0 --self-contained false --runtime win-x64
