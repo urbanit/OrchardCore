@@ -20,10 +20,10 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '5.0.x'
-          include-prerelease: true
+          include-prerelease: false
 
       - name: Build with dotnet
-        run: dotnet build --configuration Debug -f net5.0
+        run: dotnet build -c Debug -f net5.0 --self-contained false --runtime win-x64
 
       - name: dotnet publish
         run: dotnet publish -c Debug -f net5.0 --self-contained false --runtime win-x64 -o ${{env.DOTNET_ROOT}}/myapp
