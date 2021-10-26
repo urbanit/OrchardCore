@@ -23,7 +23,7 @@ jobs:
           include-prerelease: true
 
       - name: Build with dotnet
-        run: dotnet build -c Debug -f net5.0 --runtime win-x64
+        run: dotnet build -c Debug -f net5.0
 
       - name: dotnet publish
         run: dotnet publish -c Debug -f net5.0 --self-contained false --runtime win-x64 -o ${{env.DOTNET_ROOT}}/myapp
