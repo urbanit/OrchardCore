@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - eredg
+name: Build and deploy ASP.Net Core app to Azure Web App - eredwww
 
 on:
   push:
@@ -23,10 +23,10 @@ jobs:
           include-prerelease: true
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release -f net5.0
+        run: dotnet build -c Release -f net5.0
 
       - name: dotnet publish
-        run: dotnet publish -c Release -f net5.0 -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -f net5.0 --self-contained false --runtime win-x64 -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
@@ -51,7 +51,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'eredg'
+          app-name: 'eredwww'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F9E893BF4F1C4A4789F0A34397236074 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6293FE6DD9EB4AD4883F8AA91D4AF832 }}
           package: .
