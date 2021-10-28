@@ -22,7 +22,7 @@
         @if (contentItem.ContentType=="BlogPost"){
             var src="/media/site/ered_logo.png";
             if(contentItem.Content.BlogPost.Image.Paths.Count>0){
-                src = "https://eredblog.azurewebsites.net/media/" + contentItem.Content.BlogPost.Image.Paths.First;
+                src = "/media/" + contentItem.Content.BlogPost.Image.Paths.First;
             }
             <span class="px-2" style="max-width: 100px;">
             <img src="@src" class="img-fluid" />
