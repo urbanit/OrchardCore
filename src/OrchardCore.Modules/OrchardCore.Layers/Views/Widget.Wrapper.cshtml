@@ -4,14 +4,8 @@
 @{
     var layerMetadata = Model.Widget.As<LayerMetadata>();
 }
-
-<div class="widget-container">
-    @if (layerMetadata.RenderTitle)
-    {
-    <div class="widget-container-title">
-        <h2>@Model.Widget.DisplayText</h2>
-    </div>
-    }
-
-    @await DisplayAsync(Model.Content)
-</div>
+@if (layerMetadata.RenderTitle)
+{
+    <h2>@Model.Widget.DisplayText</h2>
+}
+@await DisplayAsync(Model.Content)
