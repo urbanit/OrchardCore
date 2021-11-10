@@ -78,7 +78,8 @@ namespace OrchardCore.Email.Controllers
                 To = testSettings.To,
                 Bcc = testSettings.Bcc,
                 Cc = testSettings.Cc,
-                ReplyTo = testSettings.ReplyTo
+                ReplyTo = testSettings.ReplyTo,
+                IsBodyHtml = true
             };
 
             if (!String.IsNullOrWhiteSpace(testSettings.Sender))

@@ -1,96 +1,257 @@
 <!doctype html>
 <html lang="{{ Culture.Name }}">
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&family=Roboto+Slab:wght@300;400;700&family=Source+Sans+Pro:wght@300;400;700&display=swap" rel="stylesheet">        <!-- Bootstrap CSS -->
-      <link rel="stylesheet" href="https://use.typekit.net/esg4ays.css">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <script src="https://kit.fontawesome.com/53632a1ab7.js" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="/css/site.css" >
-        <!-- <link rel="stylesheet" href="/TheBlogTheme/css/conference.css"> -->
-        <title>{{ "PageTitle" | shape_new | shape_stringify }}</title>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-22679769-2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% resources type: "Meta" %}
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&family=Roboto+Slab:wght@300;400;700&family=Source+Sans+Pro:wght@300;400;700&display=swap" rel="stylesheet">        <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://use.typekit.net/esg4ays.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/53632a1ab7.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/site.css?v=2.0" >
+    <title>{{ "PageTitle" | shape_new | shape_stringify }}</title>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-MWSG92B');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Quantcast Choice. Consent Manager Tag v2.0 (for TCF 2.0) -->
+    <script type="text/javascript" async=true>
+    (function() {
+    var host = window.location.hostname;
+    var element = document.createElement('script');
+    var firstScript = document.getElementsByTagName('script')[0];
+    var url = 'https://quantcast.mgr.consensu.org'
+    .concat('/choice/', '1huD5DQ3RB5dZ', '/', host, '/choice.js')
+    var uspTries = 0;
+    var uspTriesLimit = 3;
+    element.async = true;
+    element.type = 'text/javascript';
+    element.src = url;
 
-  gtag('config', 'UA-22679769-2');
-</script>    
-<script data-ad-client="ca-pub-2786407320124405" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>   
-      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<script>
-//load TrackerJS
-!function(t,n,e,o,a){function d(t){var n=~~(Date.now()/3e5),o=document.createElement(e);o.async=!0,o.src=t+"?ts="+n;var a=document.getElementsByTagName(e)[0];a.parentNode.insertBefore(o,a)}t.MooTrackerObject=a,t[a]=t[a]||function(){return t[a].q?void t[a].q.push(arguments):void(t[a].q=[arguments])},window.attachEvent?window.attachEvent("onload",d.bind(this,o)):window.addEventListener("load",d.bind(this,o),!1)}(window,document,"script","//cdn.stat-track.com/statics/moosend-tracking.min.js","mootrack");
-//tracker has to be initialized otherwise it will generate warnings and wont sendtracking events
-mootrack('init', '5a612c4d8865449a9070c7c70c00c5f5');
-  mootrack('trackPageView');
-</script>  
-    </head>
-    <body>
-        <!-- Content -->
-        <div id="main">
-          <div id="MobileMenu">
-            {% render_section "MobileMenu", required: false %}
-            </div><div id="Header">
-            {% render_section "Header", required: false %}
-          </div><div id="Messages">
-            {% render_section "Messages", required: false %}
-          </div>
-          <div class=" pt-4">
-            <div class="container">  
-              <div class="row">
-                <div class="col-lg-8 col-md-9" id="ContentWrapper">
-                  <div class="pr-4 pl-5">
-                    <div id="Content">
-                  {% render_section "Content" %}
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-4 col-md-3 border-left border-dark" id="Sidebar">         
-                  {% render_section "Sidebar", required: false %}
-                </div>
+    firstScript.parentNode.insertBefore(element, firstScript);
+
+    function makeStub() {
+    var TCF_LOCATOR_NAME = '__tcfapiLocator';
+    var queue = [];
+    var win = window;
+    var cmpFrame;
+
+    function addFrame() {
+    var doc = win.document;
+    var otherCMP = !!(win.frames[TCF_LOCATOR_NAME]);
+
+    if (!otherCMP) {
+    if (doc.body) {
+    var iframe = doc.createElement('iframe');
+
+    iframe.style.cssText = 'display:none';
+    iframe.name = TCF_LOCATOR_NAME;
+    doc.body.appendChild(iframe);
+    } else {
+    setTimeout(addFrame, 5);
+    }
+    }
+    return !otherCMP;
+    }
+
+    function tcfAPIHandler() {
+    var gdprApplies;
+    var args = arguments;
+
+    if (!args.length) {
+    return queue;
+    } else if (args[0] === 'setGdprApplies') {
+    if (
+    args.length > 3 &&
+    args[2] === 2 &&
+    typeof args[3] === 'boolean'
+    ) {
+    gdprApplies = args[3];
+    if (typeof args[2] === 'function') {
+    args[2]('set', true);
+    }
+    }
+    } else if (args[0] === 'ping') {
+    var retr = {
+    gdprApplies: gdprApplies,
+    cmpLoaded: false,
+    cmpStatus: 'stub'
+    };
+
+    if (typeof args[2] === 'function') {
+    args[2](retr);
+    }
+    } else {
+    queue.push(args);
+    }
+    }
+
+    function postMessageEventHandler(event) {
+    var msgIsString = typeof event.data === 'string';
+    var json = {};
+
+    try {
+    if (msgIsString) {
+    json = JSON.parse(event.data);
+    } else {
+    json = event.data;
+    }
+    } catch (ignore) {}
+
+    var payload = json.__tcfapiCall;
+
+    if (payload) {
+    window.__tcfapi(
+    payload.command,
+    payload.version,
+    function(retValue, success) {
+    var returnMsg = {
+    __tcfapiReturn: {
+    returnValue: retValue,
+    success: success,
+    callId: payload.callId
+    }
+    };
+    if (msgIsString) {
+    returnMsg = JSON.stringify(returnMsg);
+    }
+    if (event && event.source && event.source.postMessage) {
+    event.source.postMessage(returnMsg, '*');
+    }
+    },
+    payload.parameter
+    );
+    }
+    }
+
+    while (win) {
+    try {
+    if (win.frames[TCF_LOCATOR_NAME]) {
+    cmpFrame = win;
+    break;
+    }
+    } catch (ignore) {}
+
+    if (win === window.top) {
+    break;
+    }
+    win = win.parent;
+    }
+    if (!cmpFrame) {
+    addFrame();
+    win.__tcfapi = tcfAPIHandler;
+    win.addEventListener('message', postMessageEventHandler, false);
+    }
+    };
+
+    makeStub();
+
+    var uspStubFunction = function() {
+    var arg = arguments;
+    if (typeof window.__uspapi !== uspStubFunction) {
+    setTimeout(function() {
+    if (typeof window.__uspapi !== 'undefined') {
+    window.__uspapi.apply(window.__uspapi, arg);
+    }
+    }, 500);
+    }
+    };
+
+    var checkIfUspIsReady = function() {
+    uspTries++;
+    if (window.__uspapi === uspStubFunction && uspTries < uspTriesLimit) {
+    console.warn('USP is not accessible');
+    } else {
+    clearInterval(uspInterval);
+    }
+    };
+
+    if (typeof window.__uspapi === 'undefined') {
+    window.__uspapi = uspStubFunction;
+    var uspInterval = setInterval(checkIfUspIsReady, 6000);
+    }
+    })();
+    </script>
+    <!-- End Quantcast Choice. Consent Manager Tag v2.0 (for TCF 2.0) -->   
+    <script data-ad-client="ca-pub-2786407320124405" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>   
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+      //load TrackerJS
+      !function(t,n,e,o,a){function d(t){var n=~~(Date.now()/3e5),o=document.createElement(e);o.async=!0,o.src=t+"?ts="+n;var a=document.getElementsByTagName(e)[0];a.parentNode.insertBefore(o,a)}t.MooTrackerObject=a,t[a]=t[a]||function(){return t[a].q?void t[a].q.push(arguments):void(t[a].q=[arguments])},window.attachEvent?window.attachEvent("onload",d.bind(this,o)):window.addEventListener("load",d.bind(this,o),!1)}(window,document,"script","//cdn.stat-track.com/statics/moosend-tracking.min.js","mootrack");
+      //tracker has to be initialized otherwise it will generate warnings and wont sendtracking events
+      mootrack('init', '5a612c4d8865449a9070c7c70c00c5f5');
+      mootrack('trackPageView');
+    </script>  
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MWSG92B"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <!-- Content -->
+  <div id="main">
+    <div id="MobileMenu">
+      {% render_section "MobileMenu", required: false %}
+    </div>
+    <div id="Header">
+      {% render_section "Header", required: false %}
+    </div>
+    <div id="Messages">
+      {% render_section "Messages", required: false %}
+    </div>
+    <div class=" pt-4">
+      <div class="container">  
+        <div class="row">
+          <div class="col-lg-8 col-md-9" id="ContentWrapper">
+            <div class="pr-4 pl-5">
+              <div id="Content">
+                {% render_section "Content" %}
               </div>
-              <div class="row">
-                <div class="col-12">
-                  <div class="pr-4 pl-5" id="ContentEnd">
-                  {% render_section "ContentEnd", required: false %}
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-lg-8 col-md-9" > 
-                  <div class="pr-4 pl-5" id="AfterContent"> 
-                  {% render_section "AfterContent", required: false %}
-                  </div>
-                </div>
-                <div class="col-lg-4 col-md-3 border-left border-dark mt-4" id="AfterSidebar">
-                  {% render_section "AfterSidebar", required: false %}
-                </div>         
-              </div>
-              <div class="row">
-                <div class="col-12">
-                  <div class="pr-4 pl-5" id="After">
-                  {% render_section "After", required: false %}
-                  </div>
-                </div>
-              </div>             
             </div>
           </div>
+          <div class="col-lg-4 col-md-3 border-left border-dark" id="Sidebar">         
+            {% render_section "Sidebar", required: false %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="pr-4 pl-5" id="ContentEnd">
+              {% render_section "ContentEnd", required: false %}
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-8 col-md-9" > 
+            <div class="pr-4 pl-5" id="AfterContent"> 
+              {% render_section "AfterContent", required: false %}
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-3 border-left border-dark mt-4" id="AfterSidebar">
+            {% render_section "AfterSidebar", required: false %}
+          </div>         
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="pr-4 pl-5" id="After">
+              {% render_section "After", required: false %}
+            </div>
+          </div>
+        </div>             
       </div>
-      <div id="Footer">
-      {% render_section "Footer", required: false %}
-      </div>
-        <!-- Optional JavaScript -->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-      <script src="https://js.stripe.com/v3/"></script>
-      <script src="/js/site.js"></script>
-      <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-611a1d92ff956b9e"></script>
-    </body>
+    </div>
+  </div>
+  <div id="Footer">
+    {% render_section "Footer", required: false %}
+  </div>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  <script src="https://js.stripe.com/v3/" async></script>
+  <script src="/js/site.js?v=2.0"></script>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-611a1d92ff956b9e" async></script>
+</body>
 </html>
