@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using OrchardCore.Autoroute.Core.Indexes;
 using OrchardCore.Autoroute.Models;
 using OrchardCore.ContentManagement.Metadata;
@@ -9,16 +10,16 @@ namespace OrchardCore.Autoroute
 {
     public class Migrations : DataMigration
     {
-        private IContentDefinitionManager _contentDefinitionManager;
+        private readonly IContentDefinitionManager _contentDefinitionManager;
 
         public Migrations(IContentDefinitionManager contentDefinitionManager)
         {
             _contentDefinitionManager = contentDefinitionManager;
         }
 
-        public int Create()
+        public async Task<int> CreateAsync()
         {
-            _contentDefinitionManager.AlterPartDefinition("AutoroutePart", builder => builder
+            await _contentDefinitionManager.AlterPartDefinitionAsync("AutoroutePart", builder => builder
                 .Attachable()
                 .WithDescription("Provides a custom url for your content item."));
 
@@ -37,15 +38,17 @@ namespace OrchardCore.Autoroute
 
         // Migrate PartSettings. This only needs to run on old content definition schemas.
         // This code can be removed in a later version.
-        public int UpdateFrom1()
+        public async Task<int> UpdateFrom1Async()
         {
-            _contentDefinitionManager.MigratePartSettings<AutoroutePart, AutoroutePartSettings>();
+            await _contentDefinitionManager.MigratePartSettingsAsync<AutoroutePart, AutoroutePartSettings>();
 
             return 2;
         }
 
         // This code can be removed in a later version.
+#pragma warning disable CA1822 // Mark members as static
         public int UpdateFrom2()
+#pragma warning restore CA1822 // Mark members as static
         {
             return 3;
         }
@@ -69,7 +72,9 @@ namespace OrchardCore.Autoroute
         }
 
         // This code can be removed in a later version.
+#pragma warning disable CA1822 // Mark members as static
         public int UpdateFrom4()
+#pragma warning restore CA1822 // Mark members as static
         {
             return 5;
         }

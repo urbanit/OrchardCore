@@ -12,7 +12,7 @@
 }
 
 <style asp-name="codemirror"></style>
-<script asp-name="codemirror" depends-on="admin" at="Foot"></script>
+<script asp-name="codemirror" at="Foot"></script>
 <script asp-name="codemirror-mode-javascript" at="Foot"></script>
 
 <zone Name="Title"><h1>@RenderTitleSegments(T["Elasticsearch Query"])</h1></zone>
@@ -88,7 +88,7 @@
                         <th scope="row">@(row++)</th>
                         @foreach (var name in fieldNames)
                         {
-                            <td>@(document.GetValueOrDefault(name)?.ToString()?? String.Empty)</td>
+                            <td>@(document.GetValueOrDefault(name)?.ToString()?? string.Empty)</td>
                         }
                     </tr>
                 }
@@ -131,7 +131,7 @@
                             if (hitValues != null)
                             {
                                 var value = hitValues.First();
-                                var item = !String.IsNullOrEmpty(value) ? value : "NULL";
+                                var item = !string.IsNullOrEmpty(value) ? value : "NULL";
 
                                 <td>
                                     @item

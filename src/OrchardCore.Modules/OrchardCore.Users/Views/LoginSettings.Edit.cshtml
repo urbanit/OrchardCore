@@ -1,7 +1,7 @@
 @model OrchardCore.Users.Models.LoginSettings
 
 <style asp-name="codemirror"></style>
-<script asp-name="codemirror" depends-on="admin" at="Foot"></script>
+<script asp-name="codemirror" at="Foot"></script>
 <script asp-name="codemirror-mode-javascript" at="Foot"></script>
 <script asp-name="codemirror-addon-display-autorefresh" at="Foot"></script>
 <script asp-name="codemirror-addon-mode-simple" at="Foot"></script>
@@ -19,6 +19,13 @@
     <div class="form-check">
         <input asp-for="AllowChangingEmail" type="checkbox" class="form-check-input">
         <label class="form-check-label" asp-for="AllowChangingEmail">@T["Allow user to change their email address"]</label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <div class="form-check">
+        <input asp-for="AllowChangingPhoneNumber" type="checkbox" class="form-check-input">
+        <label class="form-check-label" asp-for="AllowChangingPhoneNumber">@T["Allow user to change their phone number"]</label>
     </div>
 </div>
 

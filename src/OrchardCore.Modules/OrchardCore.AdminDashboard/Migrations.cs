@@ -11,7 +11,7 @@ namespace OrchardCore.AdminDashboard
 {
     public class Migrations : DataMigration
     {
-        private IContentDefinitionManager _contentDefinitionManager;
+        private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IRecipeMigrator _recipeMigrator;
 
         public Migrations(IContentDefinitionManager contentDefinitionManager, IRecipeMigrator recipeMigrator)
@@ -29,10 +29,10 @@ namespace OrchardCore.AdminDashboard
             SchemaBuilder.AlterIndexTable<DashboardPartIndex>(table => table
                 .CreateIndex("IDX_DashboardPart_DocumentId",
                     "DocumentId",
-                    nameof(DashboardPartIndex.Position))
+                    "Position")
             );
 
-            _contentDefinitionManager.AlterPartDefinition("DashboardPart", builder => builder
+            await _contentDefinitionManager.AlterPartDefinitionAsync("DashboardPart", builder => builder
                 .Attachable()
                 .WithDescription("Provides a way to add widgets to a dashboard.")
                 );
@@ -56,7 +56,7 @@ namespace OrchardCore.AdminDashboard
             SchemaBuilder.AlterIndexTable<DashboardPartIndex>(table => table
                 .CreateIndex("IDX_DashboardPart_DocumentId",
                     "DocumentId",
-                    nameof(DashboardPartIndex.Position))
+                    "Position")
             );
 
             return 3;
