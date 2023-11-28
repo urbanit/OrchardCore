@@ -54,7 +54,7 @@ A good way to model this filter in JSON is like this:
 {
 	"size": 10,
 	"query": {
- 	  "term": { "Content.ContentItem.ContentType" : "BlogPost" }
+ 	  "term": { "Content.ContentItem.ContentType.keyword" : "BlogPost" }
 	}
 }
 ```
@@ -79,7 +79,7 @@ To create that logic, we can do this:
 {% if categories or tags %}
 
 {% else %}
-  	"term": { "Content.ContentItem.ContentType" : "BlogPost" }
+  	"term": { "Content.ContentItem.ContentType.keyword" : "BlogPost" }
 {% endif %}
 	}
 }
@@ -165,7 +165,7 @@ Finally, gluing it all together into a usable query:
     		],
 		}
     {% else %}
-      "term": { "Content.ContentItem.ContentType" : "BlogPost" }
+      "term": { "Content.ContentItem.ContentType.keyword" : "BlogPost" }
     {% endif %}
 	}
 }
@@ -180,9 +180,10 @@ This article is not intended to provide a complete implementation. However, as a
   parameters.Add("categories", new string[] { "4pgm1krsy9nmyre41y5dj2p7df" });
   parameters.Add("tags", null);
   var posts = await Orchard.QueryAsync("GetBlogsByFilter", parameters);
+  
   foreach (ContentItem post in posts)
   {
-      Orchard.DisplayAsync(post);
+      await Orchard.DisplayAsync(post);
   }
 ```
 

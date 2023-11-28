@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using OrchardCore.ContentManagement;
 using OrchardCore.ContentManagement.Display;
+using OrchardCore.ContentManagement.Metadata;
 using OrchardCore.DisplayManagement;
 using OrchardCore.DisplayManagement.ModelBinding;
 using OrchardCore.DisplayManagement.Notify;
@@ -25,6 +27,7 @@ namespace OrchardCore.Layers.Controllers
 {
     public class AdminController : Controller
     {
+        private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IContentManager _contentManager;
         private readonly IContentItemDisplayManager _contentItemDisplayManager;
         private readonly ISiteService _siteService;
@@ -40,8 +43,10 @@ namespace OrchardCore.Layers.Controllers
         private readonly IStringLocalizer S;
         private readonly IHtmlLocalizer H;
         private readonly INotifier _notifier;
+        private readonly ILogger _logger;
 
         public AdminController(
+            IContentDefinitionManager contentDefinitionManager,
             IContentManager contentManager,
             IContentItemDisplayManager contentItemDisplayManager,
             ISiteService siteService,
@@ -56,8 +61,10 @@ namespace OrchardCore.Layers.Controllers
             IEnumerable<IConditionFactory> conditionFactories,
             IStringLocalizer<AdminController> stringLocalizer,
             IHtmlLocalizer<AdminController> htmlLocalizer,
-            INotifier notifier)
+            INotifier notifier,
+            ILogger<AdminController> logger)
         {
+            _contentDefinitionManager = contentDefinitionManager;
             _contentManager = contentManager;
             _contentItemDisplayManager = contentItemDisplayManager;
             _siteService = siteService;
@@ -73,6 +80,7 @@ namespace OrchardCore.Layers.Controllers
             _notifier = notifier;
             S = stringLocalizer;
             H = htmlLocalizer;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -88,6 +96,7 @@ namespace OrchardCore.Layers.Controllers
             var model = new LayersIndexViewModel { Layers = layers.Layers.ToList() };
 
             var siteSettings = await _siteService.GetSiteSettingsAsync();
+            var contentDefinitions = _contentDefinitionManager.ListTypeDefinitions();
 
             model.Zones = siteSettings.As<LayerSettings>().Zones ?? Array.Empty<string>();
             model.Widgets = new Dictionary<string, List<dynamic>>();
@@ -100,16 +109,16 @@ namespace OrchardCore.Layers.Controllers
                 {
                     model.Widgets.Add(zone, list = new List<dynamic>());
                 }
-                try
-                {
-                    var widgetDisplay = await _contentItemDisplayManager.BuildDisplayAsync(widget.ContentItem, _updateModelAccessor.ModelUpdater, "SummaryAdmin");
-                    list.Add(widgetDisplay);
-                }
-                catch (Exception _e) {
-                    await _notifier.ErrorAsync(H[_e.Message]);
-                    continue;
-                }
 
+                if (contentDefinitions.Any(c => c.Name == widget.ContentItem.ContentType))
+                {
+                    list.Add(await _contentItemDisplayManager.BuildDisplayAsync(widget.ContentItem, _updateModelAccessor.ModelUpdater, "SummaryAdmin"));
+                }
+                else
+                {
+                    _logger.LogWarning("The Widget content item with id {ContentItemId} has no matching {ContentType} content type definition.", widget.ContentItem.ContentItemId, widget.ContentItem.ContentType);
+                    await _notifier.WarningAsync(H["The Widget content item with id {0} has no matching {1} content type definition.", widget.ContentItem.ContentItemId, widget.ContentItem.ContentType]);
+                }
             }
 
             return View(model);
@@ -279,7 +288,7 @@ namespace OrchardCore.Layers.Controllers
         {
             if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageLayers))
             {
-                return StatusCode(401);
+                return Unauthorized();
             }
 
             // Load the latest version first if any
@@ -287,14 +296,14 @@ namespace OrchardCore.Layers.Controllers
 
             if (contentItem == null)
             {
-                return StatusCode(404);
+                return NotFound();
             }
 
             var layerMetadata = contentItem.As<LayerMetadata>();
 
             if (layerMetadata == null)
             {
-                return StatusCode(403);
+                return Forbid();
             }
 
             layerMetadata.Position = position;
@@ -315,7 +324,7 @@ namespace OrchardCore.Layers.Controllers
 
                     if (layerMetadata == null)
                     {
-                        return StatusCode(403);
+                        return Forbid();
                     }
 
                     layerMetadata.Position = position;
@@ -332,7 +341,7 @@ namespace OrchardCore.Layers.Controllers
 
             if (Request.Headers != null && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return StatusCode(200);
+                return Ok();
             }
             else
             {
