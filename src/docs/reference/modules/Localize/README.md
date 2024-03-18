@@ -31,7 +31,7 @@ Especially if mounting a volume at `/App_Data/` as mounting hides pre-existing f
 
 ### Publishing Localization files
 
-The PO files need to be included in the publish output directory. 
+The PO files need to be included in the publish output directory.
 Add the following configurations to your `[Web Project].csproj` file to include them as Content.
 
 ```xml
@@ -166,3 +166,7 @@ Then, you will be able to run this command to generate the .po files:
 ``` bash
 extractpo <INTPUT_PATH> <OUTPUT_PATH> [-l|--language {"C#"|"VB"}] [-t|--template {"razor"|"liquid"}]
 ```
+
+## Video
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/cwKa1OA48-4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
