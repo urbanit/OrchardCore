@@ -41,7 +41,7 @@
     <script asp-name="admin" version="1" at="Foot"></script>
 
     <resources type="Header" />
-
+    <link rel="stylesheet" href="/@ThemeTogglerService.CurrentTenant/css/admin.css">
     @await RenderSectionAsync("HeadMeta", required: false)
 </head>
 <body class="preload">
@@ -91,5 +91,6 @@
     </div>
     <div id="confirmRemoveModalMetadata" data-title="@T["Delete"]" data-message="@T["Are you sure you want to remove this element?"]" data-ok-text="@T["Ok"]" data-cancel-text="@T["Cancel"]" data-ok-class="btn-danger" data-cancel-class="btn-secondary"></div>
     <resources type="Footer" />
+    <script src="/@ThemeTogglerService.CurrentTenant/js/admin.js"></script>
 </body>
 </html>
