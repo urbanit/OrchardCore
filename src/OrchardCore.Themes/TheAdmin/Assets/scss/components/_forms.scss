@@ -24,6 +24,10 @@
     @include border-radius($border-radius);
 }
 
+.form-label {
+    margin-bottom: 0.25rem;
+}
+
 .label-link {
     float: right;
     font-size: 12px;
@@ -37,6 +41,11 @@
 // When the validation message in inside the label, add a separator
 label .field-validation-error::before {
     content: "- ";
+}
+
+label.input-required:after {
+    color: var(--bs-danger-text-emphasis);
+    content: " *"
 }
 
 .button {
