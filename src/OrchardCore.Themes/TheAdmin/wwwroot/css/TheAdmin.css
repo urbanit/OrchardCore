@@ -1,5 +1,6 @@
 @charset "UTF-8";
-/* Import variables first */ /* 
+/* Import variables first */
+/* 
     IMPORTANT: Never import Bootstrap directly into the theme. 
     TheAdmin.css will depend on Bootstrap, but we never want to compile it. 
 */
@@ -25,8 +26,8 @@
   --oc-editor-fullscreen: 1054;
   --oc-selected-indicator-color: var(--bs-primary);
   /* Action bar should always be less than dropdown menu */
-  --oc-action-bar-zindex: 983;
-  --oc-second-action-bar-zindex: 980;
+  --oc-action-bar-zindex: 980;
+  --oc-second-action-bar-zindex: 983;
   /* Undefined Bootstrap variables */
   --bs-dropdown-zindex: 1000;
   --bs-zindex-fixed: 1030;
@@ -60,8 +61,8 @@
   --oc-editor-fullscreen: 1054;
   --oc-selected-indicator-color: var(--bs-primary);
   /* Action bar should always be less than dropdown menu */
-  --oc-action-bar-zindex: 983;
-  --oc-second-action-bar-zindex: 980;
+  --oc-action-bar-zindex: 980;
+  --oc-second-action-bar-zindex: 983;
   /* Undefined Bootstrap variables */
   --bs-dropdown-zindex: 1000;
   --bs-zindex-fixed: 1030;
@@ -206,8 +207,8 @@ a:hover {
   --oc-editor-fullscreen: 1054;
   --oc-selected-indicator-color: var(--bs-primary);
   /* Action bar should always be less than dropdown menu */
-  --oc-action-bar-zindex: 983;
-  --oc-second-action-bar-zindex: 980;
+  --oc-action-bar-zindex: 980;
+  --oc-second-action-bar-zindex: 983;
   /* Undefined Bootstrap variables */
   --bs-dropdown-zindex: 1000;
   --bs-zindex-fixed: 1030;
@@ -688,8 +689,8 @@ html[dir=rtl] .bootstrap-select .bs-ok-default:after {
   --oc-editor-fullscreen: 1054;
   --oc-selected-indicator-color: var(--bs-primary);
   /* Action bar should always be less than dropdown menu */
-  --oc-action-bar-zindex: 983;
-  --oc-second-action-bar-zindex: 980;
+  --oc-action-bar-zindex: 980;
+  --oc-second-action-bar-zindex: 983;
   /* Undefined Bootstrap variables */
   --bs-dropdown-zindex: 1000;
   --bs-zindex-fixed: 1030;
@@ -786,8 +787,8 @@ html[dir=rtl] .bootstrap-select .bs-ok-default:after {
   --oc-editor-fullscreen: 1054;
   --oc-selected-indicator-color: var(--bs-primary);
   /* Action bar should always be less than dropdown menu */
-  --oc-action-bar-zindex: 983;
-  --oc-second-action-bar-zindex: 980;
+  --oc-action-bar-zindex: 980;
+  --oc-second-action-bar-zindex: 983;
   /* Undefined Bootstrap variables */
   --bs-dropdown-zindex: 1000;
   --bs-zindex-fixed: 1030;
@@ -821,6 +822,10 @@ html[dir=rtl] .bootstrap-select .bs-ok-default:after {
   border-radius: 0.375rem;
 }
 
+.form-label {
+  margin-bottom: 0.25rem;
+}
+
 .label-link {
   float: right;
   font-size: 12px;
@@ -833,6 +838,11 @@ html[dir=rtl] .bootstrap-select .bs-ok-default:after {
 
 label .field-validation-error::before {
   content: "- ";
+}
+
+label.input-required:after {
+  color: var(--bs-danger-text-emphasis);
+  content: " *";
 }
 
 input[type=password]::-ms-reveal,
@@ -7962,10 +7972,6 @@ input[type=password]::-ms-clear {
   padding: 0.75rem 0.5rem;
 }
 
-.list-group-item + .list-group-item {
-  border-top-width: 0;
-}
-
 .monaco-editor {
   --vscode-foreground: var(--bs-body-color) !important;
   --vscode-editor-background: var(--bs-body-bg) !important;
@@ -8470,8 +8476,8 @@ ul.pager {
   --oc-editor-fullscreen: 1054;
   --oc-selected-indicator-color: var(--bs-primary);
   /* Action bar should always be less than dropdown menu */
-  --oc-action-bar-zindex: 983;
-  --oc-second-action-bar-zindex: 980;
+  --oc-action-bar-zindex: 980;
+  --oc-second-action-bar-zindex: 983;
   /* Undefined Bootstrap variables */
   --bs-dropdown-zindex: 1000;
   --bs-zindex-fixed: 1030;
@@ -8512,8 +8518,8 @@ ul.ui-sortable:not(:has(> li)) {
   --oc-editor-fullscreen: 1054;
   --oc-selected-indicator-color: var(--bs-primary);
   /* Action bar should always be less than dropdown menu */
-  --oc-action-bar-zindex: 983;
-  --oc-second-action-bar-zindex: 980;
+  --oc-action-bar-zindex: 980;
+  --oc-second-action-bar-zindex: 983;
   /* Undefined Bootstrap variables */
   --bs-dropdown-zindex: 1000;
   --bs-zindex-fixed: 1030;
@@ -8645,6 +8651,13 @@ ul.ui-sortable:not(:has(> li)) {
   fill: var(--bs-body-color);
 }
 
+[dir] .trumbowyg-box .trumbowyg-editor th, [dir] .trumbowyg-box .trumbowyg-editor td {
+  border-width: var(--bs-border-width, 1px);
+  border-style: var(--bs-border-style, solid);
+  border-color: var(--bs-border-color, #dee2e6);
+  padding: 0.5rem;
+}
+
 span.field-validation-error {
   width: 100%;
 }
@@ -8675,7 +8688,7 @@ span.field-validation-error {
 }
 
 .field-validation-error {
-  color: var(--bs-danger) !important;
+  color: var(--bs-danger-text-emphasis) !important;
 }
 
 .field-validation-valid {
@@ -8882,8 +8895,8 @@ textarea.form-control.input-validation-error {
   --oc-editor-fullscreen: 1054;
   --oc-selected-indicator-color: var(--bs-primary);
   /* Action bar should always be less than dropdown menu */
-  --oc-action-bar-zindex: 983;
-  --oc-second-action-bar-zindex: 980;
+  --oc-action-bar-zindex: 980;
+  --oc-second-action-bar-zindex: 983;
   /* Undefined Bootstrap variables */
   --bs-dropdown-zindex: 1000;
   --bs-zindex-fixed: 1030;
