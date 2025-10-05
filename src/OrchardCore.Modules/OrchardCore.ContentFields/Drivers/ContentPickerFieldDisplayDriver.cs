@@ -50,8 +50,8 @@ public sealed class ContentPickerFieldDisplayDriver : ContentFieldDisplayDriver<
             model.Part = fieldDisplayContext.ContentPart;
             model.PartFieldDefinition = fieldDisplayContext.PartFieldDefinition;
         })
-        .Location("Detail", "Content")
-        .Location("Summary", "Content");
+        .Location(OrchardCoreConstants.DisplayType.Detail, "Content")
+        .Location(OrchardCoreConstants.DisplayType.Summary, "Content");
     }
 
     public override IDisplayResult Edit(ContentPickerField field, BuildFieldEditorContext context)
@@ -87,7 +87,7 @@ public sealed class ContentPickerFieldDisplayDriver : ContentFieldDisplayDriver<
                             new Dictionary<string, FluidValue>() { [nameof(ContentItem)] = new ObjectValue(contentItem) }),
                         HasPublished = await _contentManager.HasPublishedVersionAsync(contentItem),
                         IsEditable = await _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext!.User, CommonPermissions.EditContent, contentItem),
-                        IsViewable = await _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext!.User, CommonPermissions.ViewContent, contentItem)
+                        IsViewable = await _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext!.User, CommonPermissions.ViewContent, contentItem),
                     });
                 }
 

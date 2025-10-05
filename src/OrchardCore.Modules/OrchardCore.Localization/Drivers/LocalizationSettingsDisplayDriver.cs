@@ -58,7 +58,7 @@ public sealed class LocalizationSettingsDisplayDriver : SiteDisplayDriver<Locali
     {
         var user = _httpContextAccessor.HttpContext?.User;
 
-        if (!await _authorizationService.AuthorizeAsync(user, Permissions.ManageCultures))
+        if (!await _authorizationService.AuthorizeAsync(user, LocalizationPermissions.ManageCultures))
         {
             return null;
         }
@@ -74,7 +74,7 @@ public sealed class LocalizationSettingsDisplayDriver : SiteDisplayDriver<Locali
                     {
                         Supported = settings.SupportedCultures.Contains(cultureInfo.Name, StringComparer.OrdinalIgnoreCase),
                         CultureInfo = cultureInfo,
-                        IsDefault = string.Equals(settings.DefaultCulture, cultureInfo.Name, StringComparison.OrdinalIgnoreCase)
+                        IsDefault = string.Equals(settings.DefaultCulture, cultureInfo.Name, StringComparison.OrdinalIgnoreCase),
                     };
                 }).ToArray();
 
@@ -82,6 +82,8 @@ public sealed class LocalizationSettingsDisplayDriver : SiteDisplayDriver<Locali
             {
                 model.Cultures[0].IsDefault = true;
             }
+
+            model.FallBackToParentCultures = settings.FallBackToParentCulture;
         }).Location("Content:2")
         .OnGroup(SettingsGroupId);
     }
@@ -91,7 +93,7 @@ public sealed class LocalizationSettingsDisplayDriver : SiteDisplayDriver<Locali
     {
         var user = _httpContextAccessor.HttpContext?.User;
 
-        if (!await _authorizationService.AuthorizeAsync(user, Permissions.ManageCultures))
+        if (!await _authorizationService.AuthorizeAsync(user, LocalizationPermissions.ManageCultures))
         {
             return null;
         }
@@ -110,6 +112,7 @@ public sealed class LocalizationSettingsDisplayDriver : SiteDisplayDriver<Locali
         {
             // Invariant culture name is empty so a null value is bound.
             settings.DefaultCulture = model.DefaultCulture ?? string.Empty;
+            settings.FallBackToParentCulture = model.FallBackToParentCultures;
             settings.SupportedCultures = supportedCulture;
 
             if (!settings.SupportedCultures.Contains(settings.DefaultCulture))

@@ -16,21 +16,19 @@ public class SelectContentTypesViewComponent : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(IEnumerable<string> selectedContentTypes, string htmlName, string stereotype)
     {
-        selectedContentTypes ??= Array.Empty<string>();
-
-        var contentTypes = await ContentTypeSelection.BuildAsync(_contentDefinitionManager, selectedContentTypes);
+        var contentTypes = await ContentTypeSelection.BuildAsync(_contentDefinitionManager, selectedContentTypes ?? []);
 
         if (!string.IsNullOrEmpty(stereotype))
         {
             contentTypes = contentTypes
-                .Where(x => x.ContentTypeDefinition.GetStereotype() == stereotype)
+                .Where(x => x.ContentTypeDefinition.StereotypeEquals(stereotype))
                 .ToArray();
         }
 
         var model = new SelectContentTypesViewModel
         {
             HtmlName = htmlName,
-            ContentTypeSelections = contentTypes
+            ContentTypeSelections = contentTypes,
         };
 
         return View(model);

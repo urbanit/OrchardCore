@@ -11,7 +11,7 @@ public class MediaEventTests
         var creatingEventHandlers = new List<IMediaCreatingEventHandler>()
         {
             new TestMediaEventHandler(),
-            new TestMediaEventHandler()
+            new TestMediaEventHandler(),
         };
 
         Stream originalStream = null;
@@ -24,7 +24,7 @@ public class MediaEventTests
 #pragma warning restore CA1859
         try
         {
-            inputStream = new MemoryStream();
+            inputStream = MemoryStreamFactory.GetStream();
             originalStream = inputStream;
 
             // Add original stream to streams to maintain reference to test disposal.
@@ -35,7 +35,7 @@ public class MediaEventTests
             {
                 var context = new MediaCreatingContext
                 {
-                    Path = path
+                    Path = path,
                 };
 
                 foreach (var eventHandler in creatingEventHandlers)
@@ -78,8 +78,9 @@ public class TestMediaEventHandler : IMediaCreatingEventHandler
 {
     public async Task<Stream> MediaCreatingAsync(MediaCreatingContext context, Stream inputStream)
     {
-        var outStream = new MemoryStream();
+        var outStream = MemoryStreamFactory.GetStream();
         await inputStream.CopyToAsync(outStream);
+        outStream.Seek(0, SeekOrigin.Begin);
 
         return outStream;
     }

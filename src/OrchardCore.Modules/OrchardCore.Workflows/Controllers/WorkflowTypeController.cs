@@ -87,7 +87,7 @@ public sealed class WorkflowTypeController : Controller
     [Admin("Workflows/Types", "WorkflowTypes")]
     public async Task<IActionResult> Index(WorkflowTypeIndexOptions options, PagerParameters pagerParameters)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -174,7 +174,7 @@ public sealed class WorkflowTypeController : Controller
     [FormValueRequired("submit.BulkAction")]
     public async Task<IActionResult> BulkEdit(WorkflowTypeIndexOptions options, IEnumerable<long> itemIds)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -214,7 +214,7 @@ public sealed class WorkflowTypeController : Controller
     [HttpPost]
     public async Task<IActionResult> Export(int id)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -225,7 +225,7 @@ public sealed class WorkflowTypeController : Controller
     public async Task<IActionResult> EditProperties(int? id, string returnUrl = null)
 
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -259,7 +259,7 @@ public sealed class WorkflowTypeController : Controller
     [HttpPost]
     public async Task<IActionResult> EditProperties(WorkflowTypePropertiesViewModel viewModel, long? id)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -308,7 +308,7 @@ public sealed class WorkflowTypeController : Controller
 
     public async Task<IActionResult> Duplicate(long id, string returnUrl = null)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -335,7 +335,7 @@ public sealed class WorkflowTypeController : Controller
     [HttpPost]
     public async Task<IActionResult> Duplicate(WorkflowTypePropertiesViewModel viewModel, long id)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -368,7 +368,7 @@ public sealed class WorkflowTypeController : Controller
 
     public async Task<IActionResult> Edit(long id, string localId)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -405,23 +405,28 @@ public sealed class WorkflowTypeController : Controller
             activityDesignShapes.Add(await BuildActivityDisplay(activityContext, index++, id, newLocalId, "Design"));
         }
 
-        var activitiesDataQuery = activityContexts.Select(x => new
+        var activitiesDataQuery = new List<object>();
+
+        foreach (var activityContext in activityContexts)
         {
-            Id = x.ActivityRecord.ActivityId,
-            x.ActivityRecord.X,
-            x.ActivityRecord.Y,
-            x.ActivityRecord.Name,
-            x.ActivityRecord.IsStart,
-            IsEvent = x.Activity.IsEvent(),
-            Outcomes = x.Activity.GetPossibleOutcomes(workflowContext, x).ToArray(),
-        });
+            activitiesDataQuery.Add(new
+            {
+                Id = activityContext.ActivityRecord.ActivityId,
+                activityContext.ActivityRecord.X,
+                activityContext.ActivityRecord.Y,
+                activityContext.ActivityRecord.Name,
+                activityContext.ActivityRecord.IsStart,
+                IsEvent = activityContext.Activity.IsEvent(),
+                Outcomes = (await activityContext.Activity.GetPossibleOutcomesAsync(workflowContext, activityContext)).ToArray(),
+            });
+        }
 
         var workflowTypeData = new
         {
             workflowType.Id,
             workflowType.Name,
             workflowType.IsEnabled,
-            Activities = activitiesDataQuery.ToArray(),
+            Activities = activitiesDataQuery,
             workflowType.Transitions,
         };
 
@@ -443,7 +448,7 @@ public sealed class WorkflowTypeController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(WorkflowTypeUpdateModel model)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }
@@ -504,7 +509,7 @@ public sealed class WorkflowTypeController : Controller
     [HttpPost]
     public async Task<IActionResult> Delete(long id)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageWorkflows))
+        if (!await _authorizationService.AuthorizeAsync(User, WorkflowsPermissions.ManageWorkflows))
         {
             return Forbid();
         }

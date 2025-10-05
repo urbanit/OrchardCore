@@ -1,30 +1,25 @@
-using GraphQL;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
-using OrchardCore.ContentManagement.GraphQL.Options;
 using OrchardCore.ContentManagement.Metadata;
 using OrchardCore.ContentTypes.Events;
 
 namespace OrchardCore.ContentManagement.GraphQL.Queries.Types;
 
-public class DynamicContentFieldsIndexAliasProvider : IIndexAliasProvider, IContentDefinitionEventHandler
+public sealed class DynamicContentFieldsIndexAliasProvider : IIndexAliasProvider, IContentDefinitionEventHandler
 {
     private static readonly string _cacheKey = nameof(DynamicContentFieldsIndexAliasProvider);
 
-    private readonly IContentDefinitionManager _contentDefinitionManager;
     private readonly IEnumerable<IContentFieldProvider> _contentFieldProviders;
+    private readonly IContentDefinitionManager _contentDefinitionManager;
     private readonly IMemoryCache _memoryCache;
-    private readonly GraphQLContentOptions _contentOptions;
 
-    public DynamicContentFieldsIndexAliasProvider(IContentDefinitionManager contentDefinitionManager,
+    public DynamicContentFieldsIndexAliasProvider(
         IEnumerable<IContentFieldProvider> contentFieldProviders,
-        IOptions<GraphQLContentOptions> contentOptionsAccessor,
+        IContentDefinitionManager contentDefinitionManager,
         IMemoryCache memoryCache)
     {
-        _contentDefinitionManager = contentDefinitionManager;
         _contentFieldProviders = contentFieldProviders;
+        _contentDefinitionManager = contentDefinitionManager;
         _memoryCache = memoryCache;
-        _contentOptions = contentOptionsAccessor.Value;
     }
 
     public async ValueTask<IEnumerable<IndexAlias>> GetAliasesAsync()
@@ -35,6 +30,7 @@ public class DynamicContentFieldsIndexAliasProvider : IIndexAliasProvider, ICont
     private async ValueTask<IEnumerable<IndexAlias>> GetAliasesInternalAsync()
     {
         var aliases = new List<IndexAlias>();
+
         var types = await _contentDefinitionManager.ListTypeDefinitionsAsync();
         var parts = types.SelectMany(t => t.Parts);
 
@@ -42,10 +38,6 @@ public class DynamicContentFieldsIndexAliasProvider : IIndexAliasProvider, ICont
         {
             foreach (var field in part.PartDefinition.Fields)
             {
-                var alias = _contentOptions.ShouldCollapse(part) ?
-                    GraphQLContentOptions.GetFieldName(part, part.Name, field.Name) :
-                    $"{field.PartDefinition.Name.ToFieldName()}.{field.Name.ToCamelCase()}";
-
                 foreach (var fieldProvider in _contentFieldProviders)
                 {
                     if (!fieldProvider.HasFieldIndex(field))
@@ -62,9 +54,26 @@ public class DynamicContentFieldsIndexAliasProvider : IIndexAliasProvider, ICont
 
                     aliases.Add(new IndexAlias
                     {
-                        Alias = alias,
-                        Index = fieldIndex.Index,
-                        IndexType = fieldIndex.IndexType
+                        Alias = fieldIndex.AliasName,
+                        Index = fieldIndex.IndexType.Name,
+                        IndexType = fieldIndex.IndexType,
+                        IsPartial = true,
+                    });
+
+                    aliases.Add(new IndexAlias
+                    {
+                        Alias = $"{fieldIndex.AliasName}:ContentPart",
+                        Index = fieldIndex.IndexType.Name,
+                        IndexType = fieldIndex.IndexType,
+                        IsPartial = true,
+                    });
+
+                    aliases.Add(new IndexAlias
+                    {
+                        Alias = $"{fieldIndex.AliasName}:ContentField",
+                        Index = fieldIndex.IndexType.Name,
+                        IndexType = fieldIndex.IndexType,
+                        IsPartial = true,
                     });
 
                     break;
@@ -75,39 +84,59 @@ public class DynamicContentFieldsIndexAliasProvider : IIndexAliasProvider, ICont
         return aliases;
     }
 
-    private void InvalidateInternalAsync() => _memoryCache.Remove(_cacheKey);
+    private void InvalidateInternal()
+        => _memoryCache.Remove(_cacheKey);
 
-    public void ContentFieldAttached(ContentFieldAttachedContext context) => InvalidateInternalAsync();
+    public void ContentFieldAttached(ContentFieldAttachedContext context)
+        => InvalidateInternal();
 
-    public void ContentFieldDetached(ContentFieldDetachedContext context) => InvalidateInternalAsync();
+    public void ContentFieldDetached(ContentFieldDetachedContext context)
+        => InvalidateInternal();
 
-    public void ContentPartAttached(ContentPartAttachedContext context) => InvalidateInternalAsync();
+    public void ContentPartAttached(ContentPartAttachedContext context)
+        => InvalidateInternal();
 
-    public void ContentPartCreated(ContentPartCreatedContext context) => InvalidateInternalAsync();
+    public void ContentPartCreated(ContentPartCreatedContext context)
+        => InvalidateInternal();
 
-    public void ContentPartDetached(ContentPartDetachedContext context) => InvalidateInternalAsync();
+    public void ContentPartDetached(ContentPartDetachedContext context)
+        => InvalidateInternal();
 
-    public void ContentPartImported(ContentPartImportedContext context) => InvalidateInternalAsync();
+    public void ContentPartImported(ContentPartImportedContext context)
+        => InvalidateInternal();
 
-    public void ContentPartImporting(ContentPartImportingContext context) { }
+    public void ContentPartRemoved(ContentPartRemovedContext context)
+        => InvalidateInternal();
 
-    public void ContentPartRemoved(ContentPartRemovedContext context) => InvalidateInternalAsync();
+    public void ContentTypeCreated(ContentTypeCreatedContext context)
+        => InvalidateInternal();
 
-    public void ContentTypeCreated(ContentTypeCreatedContext context) => InvalidateInternalAsync();
+    public void ContentTypeImported(ContentTypeImportedContext context)
+        => InvalidateInternal();
 
-    public void ContentTypeImported(ContentTypeImportedContext context) => InvalidateInternalAsync();
+    public void ContentTypeRemoved(ContentTypeRemovedContext context)
+        => InvalidateInternal();
 
-    public void ContentTypeImporting(ContentTypeImportingContext context) { }
+    public void ContentTypeUpdated(ContentTypeUpdatedContext context)
+        => InvalidateInternal();
 
-    public void ContentTypeRemoved(ContentTypeRemovedContext context) => InvalidateInternalAsync();
+    public void ContentPartUpdated(ContentPartUpdatedContext context)
+        => InvalidateInternal();
 
-    public void ContentTypeUpdated(ContentTypeUpdatedContext context) => InvalidateInternalAsync();
+    public void ContentTypePartUpdated(ContentTypePartUpdatedContext context)
+        => InvalidateInternal();
 
-    public void ContentPartUpdated(ContentPartUpdatedContext context) => InvalidateInternalAsync();
+    public void ContentFieldUpdated(ContentFieldUpdatedContext context)
+        => InvalidateInternal();
 
-    public void ContentTypePartUpdated(ContentTypePartUpdatedContext context) => InvalidateInternalAsync();
+    public void ContentPartFieldUpdated(ContentPartFieldUpdatedContext context)
+        => InvalidateInternal();
 
-    public void ContentFieldUpdated(ContentFieldUpdatedContext context) => InvalidateInternalAsync();
+    public void ContentTypeImporting(ContentTypeImportingContext context)
+    {
+    }
 
-    public void ContentPartFieldUpdated(ContentPartFieldUpdatedContext context) => InvalidateInternalAsync();
+    public void ContentPartImporting(ContentPartImportingContext context)
+    {
+    }
 }

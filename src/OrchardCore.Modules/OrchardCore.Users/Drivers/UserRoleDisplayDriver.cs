@@ -45,10 +45,10 @@ public sealed class UserRoleDisplayDriver : DisplayDriver<User>
     {
         return CombineAsync(
             Initialize<SummaryAdminUserViewModel>("UserRolesMeta", model => model.User = user)
-                .Location("SummaryAdmin", "Description"),
+                .Location(OrchardCoreConstants.DisplayType.SummaryAdmin, "Description"),
 
             Initialize<SummaryAdminUserViewModel>("UserRoles", model => model.User = user)
-                .Location("DetailAdmin", "Content:10")
+                .Location(OrchardCoreConstants.DisplayType.DetailAdmin, "Content:10")
         );
     }
 
@@ -78,7 +78,7 @@ public sealed class UserRoleDisplayDriver : DisplayDriver<User>
             model.Roles = roleEntries.ToArray();
         })
         .Location("Content:1.10")
-        .RenderWhen(() => _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, CommonPermissions.EditUsers, user));
+        .RenderWhen(() => _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, UsersPermissions.EditUsers, user));
     }
 
     public override async Task<IDisplayResult> UpdateAsync(User user, UpdateEditorContext context)
@@ -160,7 +160,7 @@ public sealed class UserRoleDisplayDriver : DisplayDriver<User>
 
         foreach (var role in roles)
         {
-            if (await _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, CommonPermissions.AssignRoleToUsers, role))
+            if (await _authorizationService.AuthorizeAsync(_httpContextAccessor.HttpContext.User, UsersPermissions.AssignRoleToUsers, role))
             {
                 authorizedRoleNames.Add(role.RoleName);
             }

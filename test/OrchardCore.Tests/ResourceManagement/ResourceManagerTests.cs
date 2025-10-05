@@ -6,7 +6,7 @@ using ResourceLocation = OrchardCore.ResourceManagement.ResourceLocation;
 
 namespace OrchardCore.Tests.ResourceManagement;
 
-public class ResourceManagerTests
+public class ResourceManagerTests : IDisposable
 {
     private const string BasePath = "http://host";
 
@@ -76,7 +76,7 @@ public class ResourceManagerTests
     }
 
     [Fact]
-    public void RegisterResouceUrl()
+    public void RegisterResourceUrl()
     {
         var resourceManager = new ResourceManager(
             new OptionsWrapper<ResourceManagementOptions>(new ResourceManagementOptions()),
@@ -471,7 +471,7 @@ public class ResourceManagerTests
         var linkEntry = new LinkEntry
         {
             Rel = "foo",
-            Href = "bar.ext"
+            Href = "bar.ext",
         };
 
         resourceManager.RegisterLink(linkEntry);
@@ -886,6 +886,8 @@ public class ResourceManagerTests
             )
         );
     }
+
+    public void Dispose() => _browsingContext?.Dispose();
 
     #region Helpers
     private async Task<IDocument> ParseHtmlAsync(IHtmlContent content)

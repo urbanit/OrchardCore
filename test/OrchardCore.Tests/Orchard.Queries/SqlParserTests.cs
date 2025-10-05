@@ -10,7 +10,7 @@ public class SqlParserTests
 
     private static string FormatSql(string sql)
     {
-        return sql.Replace("\r\n", " ").Replace('\n', ' ');
+        return sql.ReplaceLineEndings(" ");
     }
 
     [Theory]
@@ -240,6 +240,21 @@ public class SqlParserTests
     public void ShouldParseSubquery(string sql, string expectedSql)
     {
         var result = SqlParser.TryParse(sql, _schema, _defaultDialect, _defaultTablePrefix, null, out var rawQuery, out _);
+        Assert.True(result);
+        Assert.Equal(expectedSql, FormatSql(rawQuery));
+    }
+
+    [Theory]
+    [InlineData("select a order by RANDOM()", "SELECT [a] ORDER BY newid();")]
+    [InlineData("select a order by random()", "SELECT [a] ORDER BY newid();")]
+    [InlineData("select a order by RANDOM", "SELECT [a] ORDER BY [RANDOM];")]
+    [InlineData("select a order by random", "SELECT [a] ORDER BY [random];")]
+    public void ShouldOrderByRandom(string sql, string expectedSql)
+    {
+        // Arrange & Act
+        var result = SqlParser.TryParse(sql, _schema, _defaultDialect, _defaultTablePrefix, null, out var rawQuery, out _);
+
+        // Assert
         Assert.True(result);
         Assert.Equal(expectedSql, FormatSql(rawQuery));
     }

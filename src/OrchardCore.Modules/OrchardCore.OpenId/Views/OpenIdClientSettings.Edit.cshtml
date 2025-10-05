@@ -3,7 +3,7 @@
 @using Microsoft.IdentityModel.Protocols.OpenIdConnect
 @model OpenIdClientSettingsViewModel
 
-<script asp-src="~/OrchardCore.OpenId/Scripts/parametersEditor.min.js" debug-src="~/OrchardCore.OpenId/Scripts/parametersEditor.js" asp-name="parametersEditor" at="Foot" depends-on="vuejs, vuedraggable"></script>
+<script asp-src="~/OrchardCore.OpenId/Scripts/parametersEditor.min.js" debug-src="~/OrchardCore.OpenId/Scripts/parametersEditor.js" asp-name="parametersEditor" at="Foot" depends-on="vuejs:2, vue-draggable:2"></script>
 <style asp-src="~/OrchardCore.OpenId/Styles/parametersEditor.min.css" debug-src="~/OrchardCore.OpenId/Styles/parametersEditor.css"></style>
 
 <script at="Foot">
@@ -44,7 +44,7 @@
     <span asp-validation-for="SignedOutCallbackPath"></span>
     <span class="hint">@T["The request path within the application's base path where the user-agent will be redirected after signing out from the identity provider."]</span>
     <span class="hint">
-        @T["For more information about 'post_logout_redirect_uri', visit: <a href=\"{0}\" target=\"_blank\">", "https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RedirectionAfterLogout"]</a>
+        @T["For more information about 'post_logout_redirect_uri', visit: <a href=\"{0}\" target=\"_blank\">OpenID Connect RP-Initiated Logout 1.0</a>", "https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RedirectionAfterLogout"]
     </span>
 </div>
 
@@ -167,10 +167,10 @@
                     </td>
                     <td class="text-center">
                         <a v-on:click="remove(index)" href="javascript:void(0)" title="@T["Remove parameter from list"]" class="btn">
-                            <i class="fa-solid fa-times" aria-hidden="true"></i>
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </a>
                     </td>
-                    <td class="text-center"><div class="btn cursor-move"><i class="fa-solid fa-arrows-alt" aria-hidden="true"></i></div></td>
+                    <td class="text-center"><div class="btn cursor-move"><i class="fa-solid fa-up-down-left-right" aria-hidden="true"></i></div></td>
                 </tr>
             </draggable>
             <tfoot>
@@ -212,7 +212,7 @@
         <div class="row mb-3">
             <div class="col-12 col-lg-6">
                 <label asp-for="Parameters" class="form-label">@T["Advanced Parameters"]</label>
-                <a href="javascript:void(0)" v-on:click="showModal" class="float-end" title="@T["Edit Data"]"><i class="fa-solid fa-edit" aria-hidden="true"></i></a>
+                <a href="javascript:void(0)" v-on:click="showModal" class="float-end" title="@T["Edit Data"]"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
                 <parameters-table :data="sharedState"></parameters-table>
                 <parameters-modal :data="sharedState" v-on:reload-data="reloadData()"></parameters-modal>
                 <div class="hint">@T["Advanced parameters that can be sent with the authorization request."]</div>

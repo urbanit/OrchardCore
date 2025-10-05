@@ -76,7 +76,7 @@ public class ShellDescriptorManager : IShellDescriptorManager
             .Concat(shellDescriptor.Features)
             .Distinct();
 
-        var featureIds = features.Select(sf => sf.Id).ToArray();
+        var featureIds = features.Select(sf => sf.Id);
 
         var missingDependencies = (await _extensionManager.LoadFeaturesAsync(featureIds))
             .Select(entry => entry.Id)
@@ -116,7 +116,7 @@ public class ShellDescriptorManager : IShellDescriptorManager
 
             var installed = new InstalledShellFeature(feature)
             {
-                SerialNumber = shellDescriptor.SerialNumber
+                SerialNumber = shellDescriptor.SerialNumber,
             };
 
             shellDescriptor.Installed.Add(installed);

@@ -35,7 +35,7 @@ public class LuceneRecipeEventHandler : IRecipeEventHandler
                         if (partDefinition.Settings.TryGetPropertyValue("ContentIndexSettings", out var existingPartSettings) &&
                             !partDefinition.Settings.ContainsKey("LuceneContentIndexSettings"))
                         {
-                            partDefinition.Settings.Add("LuceneContentIndexSettings", existingPartSettings);
+                            partDefinition.Settings.Add("LuceneContentIndexSettings", existingPartSettings?.DeepClone());
                         }
 
                         partDefinition.Settings.Remove("ContentIndexSettings");
@@ -47,10 +47,9 @@ public class LuceneRecipeEventHandler : IRecipeEventHandler
             {
                 if (partDefinition.Settings != null)
                 {
-                    if (partDefinition.Settings.TryGetPropertyValue("ContentIndexSettings", out var existingPartSettings) &&
-                        !partDefinition.Settings.ContainsKey("LuceneContentIndexSettings"))
+                    if (partDefinition.Settings.TryGetPropertyValue("ContentIndexSettings", out var existingPartSettings))
                     {
-                        partDefinition.Settings.Add("LuceneContentIndexSettings", existingPartSettings);
+                        partDefinition.Settings["LuceneContentIndexSettings"] = existingPartSettings?.DeepClone();
                     }
 
                     partDefinition.Settings.Remove("ContentIndexSettings");
@@ -59,10 +58,9 @@ public class LuceneRecipeEventHandler : IRecipeEventHandler
                     {
                         if (fieldDefinition.Settings != null)
                         {
-                            if (fieldDefinition.Settings.TryGetPropertyValue("ContentIndexSettings", out var existingFieldSettings) &&
-                                !fieldDefinition.Settings.ContainsKey("LuceneContentIndexSettings"))
+                            if (fieldDefinition.Settings.TryGetPropertyValue("ContentIndexSettings", out var existingFieldSettings))
                             {
-                                fieldDefinition.Settings.Add("LuceneContentIndexSettings", existingFieldSettings);
+                                fieldDefinition.Settings["LuceneContentIndexSettings"] = existingFieldSettings?.DeepClone();
                             }
 
                             fieldDefinition.Settings.Remove("ContentIndexSettings");

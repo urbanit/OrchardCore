@@ -13,8 +13,9 @@ public class RoleEntry
 
     public string Description { get; set; }
 
-    public bool Selected { get; set; }
-
     [BindNever]
     public bool IsSystemRole { get; set; }
+
+    [BindNever]
+    public bool IsAdminRole { get; set; }
 }

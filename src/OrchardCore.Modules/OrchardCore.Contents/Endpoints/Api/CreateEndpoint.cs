@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Text.Json.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -63,18 +62,20 @@ public static class CreateEndpoint
             }
 
             contentItem = await contentManager.NewAsync(model.ContentType);
-            contentItem.Owner = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (!await authorizationService.AuthorizeAsync(httpContext.User, CommonPermissions.PublishContent, contentItem))
             {
                 return httpContext.ChallengeOrForbid("Api");
             }
-
             contentItem.Merge(model);
 
-            var result = await contentManager.UpdateValidateAndCreateAsync(contentItem, VersionOptions.Draft);
+            var result = await contentManager.ValidateAsync(contentItem);
 
-            if (!result.Succeeded)
+            if (result.Succeeded)
+            {
+                await contentManager.CreateAsync(contentItem, VersionOptions.Draft);
+            }
+            else
             {
                 // Add the validation results to the ModelState to present the errors as part of the response.
                 AddValidationErrorsToModelState(result, modelState);

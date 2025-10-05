@@ -36,7 +36,7 @@ public class DefaultShapeTableManagerTests : IDisposable
             var features =
                 new List<IFeatureInfo>()
                 {
-                    { new FeatureInfo(name, name, 0, string.Empty, string.Empty, this, [], false, false, false) }
+                    { new FeatureInfo(name, name, 0, string.Empty, string.Empty, this, [], false, false, false) },
                 };
 
             Features = features;
@@ -70,7 +70,7 @@ public class DefaultShapeTableManagerTests : IDisposable
             var features =
                 new List<IFeatureInfo>()
                 {
-                    { new FeatureInfo(name, name, 0, string.Empty, string.Empty, this, [], false, false, false) }
+                    { new FeatureInfo(name, name, 0, string.Empty, string.Empty, this, [], false, false, false) },
                 };
 
             Features = features;
@@ -85,7 +85,7 @@ public class DefaultShapeTableManagerTests : IDisposable
                 {"name", name},
                 {"description", name},
                 {"type", "theme"},
-                {"basetheme", baseTheme.Id }
+                {"basetheme", baseTheme.Id },
             };
 
             var memConfigSrc1 = new MemoryConfigurationSource { InitialData = dic1 };
@@ -97,7 +97,7 @@ public class DefaultShapeTableManagerTests : IDisposable
             Features =
                 new List<IFeatureInfo>()
                 {
-                    { new FeatureInfo(name, name, 0, string.Empty, string.Empty, this, [baseTheme.Id], false, false, false) }
+                    { new FeatureInfo(name, name, 0, string.Empty, string.Empty, this, [baseTheme.Id], false, false, false) },
                 };
 
             Id = name;
@@ -132,7 +132,7 @@ public class DefaultShapeTableManagerTests : IDisposable
             testFeatureExtensionInfo.Features.First(),
             theme1FeatureExtensionInfo.Features.First(),
             baseThemeFeatureExtensionInfo.Features.First(),
-            derivedThemeFeatureExtensionInfo.Features.First()
+            derivedThemeFeatureExtensionInfo.Features.First(),
         };
 
         serviceCollection.AddSingleton<IExtensionManager>(new TestExtensionManager(features));
@@ -259,6 +259,9 @@ public class DefaultShapeTableManagerTests : IDisposable
         }
 
         public IEnumerable<IFeatureInfo> GetFeatures(string[] featureIdsToLoad)
+            => GetFeatures((IEnumerable<string>)featureIdsToLoad);
+
+        public IEnumerable<IFeatureInfo> GetFeatures(IEnumerable<string> featureIdsToLoad)
         {
             return _features.Where(x => featureIdsToLoad.Contains(x.Id));
         }
@@ -274,6 +277,9 @@ public class DefaultShapeTableManagerTests : IDisposable
         }
 
         public Task<IEnumerable<IFeatureInfo>> LoadFeaturesAsync(string[] featureIdsToLoad)
+            => LoadFeaturesAsync((IEnumerable<string>)featureIdsToLoad);
+
+        public Task<IEnumerable<IFeatureInfo>> LoadFeaturesAsync(IEnumerable<string> featureIdsToLoad)
         {
             throw new NotImplementedException();
         }
@@ -435,7 +441,7 @@ public class DefaultShapeTableManagerTests : IDisposable
             Tuple.Create("~/my-blog*", "~/my-blog/my-post/", true),
             Tuple.Create("~/my-blog/*", "~/my-blog/", true),
             Tuple.Create("~/my-blog/*", "~/my-blog123/", false),
-            Tuple.Create("~/my-blog*", "~/my-blog123/", true)
+            Tuple.Create("~/my-blog*", "~/my-blog123/", true),
         };
 
         foreach (var rule in rules)
@@ -495,9 +501,7 @@ public class DefaultShapeTableManagerTests : IDisposable
         Assert.Equal("DerivedTheme", table.Descriptors["OverriddenShape"].BindingSource);
     }
 
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
     public void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
     {
         (_serviceProvider as IDisposable)?.Dispose();
     }

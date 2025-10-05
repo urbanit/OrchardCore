@@ -11,8 +11,10 @@ permissions:
 
 jobs:
   generate-community-metrics:
+    # To enable this workflow on a fork, comment out:
+    if: github.repository == 'OrchardCMS/OrchardCore'
     name: Generate Community Metrics
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Get Dates For Last Month
       shell: pwsh
@@ -28,7 +30,7 @@ jobs:
         Write-Output "LAST_MONTH=$firstDay..$lastDay" >> $env:GITHUB_ENV
 
     - name: Compute Issue Metrics
-      uses: github/issue-metrics@v3
+      uses: github/issue-metrics@e8f19041d9996b64cd5eebd653f065adb6d0e195 # v3.23.2
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SEARCH_QUERY: 'repo:OrchardCMS/OrchardCore is:issue created:${{ env.LAST_MONTH }} -reason:"not planned" -label:"community metrics"'
@@ -41,7 +43,7 @@ jobs:
         Add-Content -Path ./community_metrics.md -Value (Get-Content -Path ./issue_metrics.md -Raw)
 
     - name: Compute Pull Request Metrics
-      uses: github/issue-metrics@v3
+      uses: github/issue-metrics@e8f19041d9996b64cd5eebd653f065adb6d0e195 # v3.23.2
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SEARCH_QUERY: 'repo:OrchardCMS/OrchardCore is:pr created:${{ env.LAST_MONTH }} -label:dontmerge -label:notready -is:draft'
@@ -54,7 +56,7 @@ jobs:
         Add-Content -Path ./community_metrics.md -Value ([Environment]::NewLine + $content)
 
     - name: Compute Q&A Discussion Request Metrics
-      uses: github/issue-metrics@v3
+      uses: github/issue-metrics@e8f19041d9996b64cd5eebd653f065adb6d0e195 # v3.23.2
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SEARCH_QUERY: 'repo:OrchardCMS/OrchardCore type:discussions created:${{ env.LAST_MONTH }} category:Q&A'
@@ -86,8 +88,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create Issue
-      # v5.0.0
-      uses: peter-evans/create-issue-from-file@24452a72d85239eacf1468b0f1982a9f3fec4c94
+      uses: peter-evans/create-issue-from-file@e8ef132d6df98ed982188e460ebb3b5d4ef3a9cd # v5.0.1
       with:
         title: Monthly community metrics report for ${{ env.LAST_MONTH }}
         token: ${{ secrets.GITHUB_TOKEN }}

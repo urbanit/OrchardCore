@@ -1,6 +1,5 @@
 using Fluid;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using OrchardCore.ContentManagement;
 using OrchardCore.ContentManagement.Display.ContentDisplay;
 using OrchardCore.ContentTypes.Editors;
@@ -13,7 +12,6 @@ using OrchardCore.Flows.Settings;
 using OrchardCore.Flows.ViewModels;
 using OrchardCore.Indexing;
 using OrchardCore.Modules;
-using OrchardCore.ResourceManagement;
 
 namespace OrchardCore.Flows;
 
@@ -28,6 +26,8 @@ public sealed class Startup : StartupBase
             o.MemberAccessStrategy.Register<FlowMetadata>();
             o.MemberAccessStrategy.Register<FlowPart>();
         });
+
+        services.AddScoped<IContentPartIndexHandler, BagPartDocumentIndexHandler>();
 
         // Flow Part
         services.AddContentPart<FlowPart>()
@@ -48,6 +48,6 @@ public sealed class Startup : StartupBase
 
         services.AddDataMigration<Migrations>();
 
-        services.AddTransient<IConfigureOptions<ResourceManagementOptions>, ResourceManagementOptionsConfiguration>();
+        services.AddResourceConfiguration<ResourceManagementOptionsConfiguration>();
     }
 }

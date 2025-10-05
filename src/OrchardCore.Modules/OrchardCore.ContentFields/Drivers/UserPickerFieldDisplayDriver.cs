@@ -36,8 +36,8 @@ public sealed class UserPickerFieldDisplayDriver : ContentFieldDisplayDriver<Use
             model.Part = context.ContentPart;
             model.PartFieldDefinition = context.PartFieldDefinition;
         })
-        .Location("Detail", "Content")
-        .Location("Summary", "Content");
+        .Location(OrchardCoreConstants.DisplayType.Detail, "Content")
+        .Location(OrchardCoreConstants.DisplayType.Summary, "Content");
     }
 
     public override IDisplayResult Edit(UserPickerField field, BuildFieldEditorContext context)
@@ -62,7 +62,7 @@ public sealed class UserPickerFieldDisplayDriver : ContentFieldDisplayDriver<Use
                     {
                         Id = user.UserId,
                         DisplayText = user.UserName,
-                        IsEnabled = user.IsEnabled
+                        IsEnabled = user.IsEnabled,
                     });
                 }
             }

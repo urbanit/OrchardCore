@@ -19,6 +19,7 @@ public class AliasPartHandler : ContentPartHandler<AliasPart>
     private readonly ITagCache _tagCache;
     private readonly ILiquidTemplateManager _liquidTemplateManager;
     private readonly ISession _session;
+
     protected readonly IStringLocalizer S;
 
     public AliasPartHandler(
@@ -49,7 +50,41 @@ public class AliasPartHandler : ContentPartHandler<AliasPart>
         }
     }
 
-    public override async Task UpdatedAsync(UpdateContentContext context, AliasPart part)
+    public override Task CreatedAsync(CreateContentContext context, AliasPart part)
+        => ComputeAliasAsync(part);
+
+    public override Task UpdatedAsync(UpdateContentContext context, AliasPart part)
+        => ComputeAliasAsync(part);
+
+    public override Task PublishedAsync(PublishContentContext context, AliasPart instance)
+    {
+        return _tagCache.RemoveTagAsync(AliasConstants.AliasPrefix + instance.Alias);
+    }
+
+    public override Task RemovedAsync(RemoveContentContext context, AliasPart instance)
+    {
+        if (context.NoActiveVersionLeft)
+        {
+            return _tagCache.RemoveTagAsync(AliasConstants.AliasPrefix + instance.Alias);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public override Task UnpublishedAsync(PublishContentContext context, AliasPart instance)
+    {
+        return _tagCache.RemoveTagAsync(AliasConstants.AliasPrefix + instance.Alias);
+    }
+
+    public override async Task CloningAsync(CloneContentContext context, AliasPart part)
+    {
+        var clonedPart = context.CloneContentItem.As<AliasPart>();
+        clonedPart.Alias = await GenerateUniqueAliasAsync(part.Alias, clonedPart);
+
+        clonedPart.Apply();
+    }
+
+    private async Task ComputeAliasAsync(AliasPart part)
     {
         // Compute the Alias only if it's empty.
         if (!string.IsNullOrEmpty(part.Alias))
@@ -65,13 +100,13 @@ public class AliasPartHandler : ContentPartHandler<AliasPart>
             {
                 Alias = part.Alias,
                 AliasPart = part,
-                ContentItem = part.ContentItem
+                ContentItem = part.ContentItem,
             };
 
             part.Alias = await _liquidTemplateManager.RenderStringAsync(pattern, NullEncoder.Default, model,
                 new Dictionary<string, FluidValue>() { [nameof(ContentItem)] = new ObjectValue(model.ContentItem) });
 
-            part.Alias = part.Alias.Replace("\r", string.Empty).Replace("\n", string.Empty);
+            part.Alias = part.Alias.ReplaceLineEndings(string.Empty);
 
             if (part.Alias?.Length > AliasPart.MaxAliasLength)
             {
@@ -85,34 +120,6 @@ public class AliasPartHandler : ContentPartHandler<AliasPart>
 
             part.Apply();
         }
-    }
-
-    public override Task PublishedAsync(PublishContentContext context, AliasPart instance)
-    {
-        return _tagCache.RemoveTagAsync($"alias:{instance.Alias}");
-    }
-
-    public override Task RemovedAsync(RemoveContentContext context, AliasPart instance)
-    {
-        if (context.NoActiveVersionLeft)
-        {
-            return _tagCache.RemoveTagAsync($"alias:{instance.Alias}");
-        }
-
-        return Task.CompletedTask;
-    }
-
-    public override Task UnpublishedAsync(PublishContentContext context, AliasPart instance)
-    {
-        return _tagCache.RemoveTagAsync($"alias:{instance.Alias}");
-    }
-
-    public override async Task CloningAsync(CloneContentContext context, AliasPart part)
-    {
-        var clonedPart = context.CloneContentItem.As<AliasPart>();
-        clonedPart.Alias = await GenerateUniqueAliasAsync(part.Alias, clonedPart);
-
-        clonedPart.Apply();
     }
 
     /// <summary>

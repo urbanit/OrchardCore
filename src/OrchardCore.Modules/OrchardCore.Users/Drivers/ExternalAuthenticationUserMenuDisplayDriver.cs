@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using OrchardCore.DisplayManagement.Handlers;
 using OrchardCore.DisplayManagement.Views;
 using OrchardCore.Users.Models;
@@ -18,8 +18,8 @@ public sealed class ExternalAuthenticationUserMenuDisplayDriver : DisplayDriver<
     {
         return View("UserMenuItems__ExternalLogins", model)
             .RenderWhen(async () => (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any())
-            .Location("Detail", "Content:10")
-            .Location("DetailAdmin", "Content:10")
+            .Location(OrchardCoreConstants.DisplayType.Detail, "Content:10")
+            .Location(OrchardCoreConstants.DisplayType.DetailAdmin, "Content:10")
             .Differentiator("ExternalLogins");
     }
 }

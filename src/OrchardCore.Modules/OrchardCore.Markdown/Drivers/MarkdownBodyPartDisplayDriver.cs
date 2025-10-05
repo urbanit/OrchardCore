@@ -45,8 +45,8 @@ public sealed class MarkdownBodyPartDisplayDriver : ContentPartDisplayDriver<Mar
     public override IDisplayResult Display(MarkdownBodyPart markdownBodyPart, BuildPartDisplayContext context)
     {
         return Initialize<MarkdownBodyPartViewModel>(GetDisplayShapeType(context), m => BuildViewModel(m, markdownBodyPart, context))
-            .Location("Detail", "Content")
-            .Location("Summary", "Content");
+            .Location(OrchardCoreConstants.DisplayType.Detail, "Content")
+            .Location(OrchardCoreConstants.DisplayType.Summary, "Content");
     }
 
     public override IDisplayResult Edit(MarkdownBodyPart markdownBodyPart, BuildPartEditorContext context)
@@ -102,7 +102,7 @@ public sealed class MarkdownBodyPartDisplayDriver : ContentPartDisplayDriver<Mar
             new Context
             {
                 ["ContentItem"] = markdownBodyPart.ContentItem,
-                ["TypePartDefinition"] = context.TypePartDefinition
+                ["TypePartDefinition"] = context.TypePartDefinition,
             });
 
         if (settings.SanitizeHtml)

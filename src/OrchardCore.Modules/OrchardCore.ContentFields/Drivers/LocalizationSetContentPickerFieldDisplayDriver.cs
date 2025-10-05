@@ -39,8 +39,8 @@ public sealed class LocalizationSetContentPickerFieldDisplayDriver : ContentFiel
             model.Part = context.ContentPart;
             model.PartFieldDefinition = context.PartFieldDefinition;
         })
-        .Location("Detail", "Content")
-        .Location("Summary", "Content");
+        .Location(OrchardCoreConstants.DisplayType.Detail, "Content")
+        .Location(OrchardCoreConstants.DisplayType.Summary, "Content");
     }
 
     public override IDisplayResult Edit(LocalizationSetContentPickerField field, BuildFieldEditorContext context)
@@ -68,7 +68,7 @@ public sealed class LocalizationSetContentPickerFieldDisplayDriver : ContentFiel
                 {
                     Id = kvp.Key, // localization set
                     DisplayText = contentItem.ToString(),
-                    HasPublished = await _contentManager.HasPublishedVersionAsync(contentItem)
+                    HasPublished = await _contentManager.HasPublishedVersionAsync(contentItem),
                 });
             }
         });

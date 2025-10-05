@@ -74,7 +74,7 @@ public sealed class SitemapController : Controller
                     var context = new SitemapBuilderContext()
                     {
                         HostPrefix = siteSettings.BaseUrl,
-                        UrlHelper = Url
+                        UrlHelper = Url,
                     };
 
                     var document = await _sitemapBuilder.BuildAsync(sitemap, context);
@@ -86,7 +86,7 @@ public sealed class SitemapController : Controller
 
                     document.Declaration = new XDeclaration("1.0", "utf-8", null);
 
-                    var stream = new MemoryStream();
+                    var stream = MemoryStreamFactory.GetStream();
                     await document.SaveAsync(stream, SaveOptions.None, cancellationToken);
 
                     if (stream.Length >= ErrorLength)

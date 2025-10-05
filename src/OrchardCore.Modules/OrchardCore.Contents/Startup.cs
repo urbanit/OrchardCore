@@ -150,11 +150,11 @@ public sealed class Startup : StartupBase
         services.AddScoped<IContentHandler, ContentsHandler>();
         services.AddRecipeExecutionStep<ContentStep>();
 
-        services.AddScoped<IContentItemIndexHandler, FullTextContentIndexHandler>();
-        services.AddScoped<IContentItemIndexHandler, AspectsContentIndexHandler>();
-        services.AddScoped<IContentItemIndexHandler, DefaultContentIndexHandler>();
+        services.AddScoped<IDocumentIndexHandler, FullTextContentIndexHandler>();
+        services.AddScoped<IDocumentIndexHandler, AspectsContentIndexHandler>();
+        services.AddScoped<IDocumentIndexHandler, DefaultContentIndexHandler>();
         services.AddScoped<IContentHandleProvider, ContentItemIdHandleProvider>();
-        services.AddScoped<IContentItemIndexHandler, ContentItemIndexCoordinator>();
+        services.AddScoped<IDocumentIndexHandler, ContentItemIndexCoordinator>();
 
         services.AddDataMigration<Migrations>();
 
@@ -179,7 +179,7 @@ public sealed class Startup : StartupBase
                 {
                     {"Area", "OrchardCore.Contents"},
                     {"Controller", "Item"},
-                    {"Action", "Display"}
+                    {"Action", "Display"},
                 };
 
                 options.ContentItemIdKey = "contentItemId";
@@ -190,7 +190,7 @@ public sealed class Startup : StartupBase
 
         services.AddScoped<IContentsAdminListQueryService, DefaultContentsAdminListQueryService>();
 
-        services.AddScoped<IDisplayDriver<ContentOptionsViewModel>, ContentOptionsDisplayDriver>();
+        services.AddDisplayDriver<ContentOptionsViewModel, ContentOptionsDisplayDriver>();
 
         services.AddScoped(typeof(IContentItemRecursionHelper<>), typeof(ContentItemRecursionHelper<>));
 
@@ -279,7 +279,7 @@ public sealed class SitemapsStartup : StartupBase
         services.AddScoped<ISitemapSourceBuilder, ContentTypesSitemapSourceBuilder>();
         services.AddScoped<ISitemapSourceUpdateHandler, ContentTypesSitemapSourceUpdateHandler>();
         services.AddScoped<ISitemapSourceModifiedDateProvider, ContentTypesSitemapSourceModifiedDateProvider>();
-        services.AddScoped<IDisplayDriver<SitemapSource>, ContentTypesSitemapSourceDriver>();
+        services.AddDisplayDriver<SitemapSource, ContentTypesSitemapSourceDriver>();
         services.AddScoped<ISitemapSourceFactory, SitemapSourceFactory<ContentTypesSitemapSource>>();
         services.AddScoped<IContentItemsQueryProvider, DefaultContentItemsQueryProvider>();
         services.AddScoped<IContentHandler, ContentTypesSitemapUpdateHandler>();

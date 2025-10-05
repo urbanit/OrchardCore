@@ -39,14 +39,17 @@ public class BlobFileStore : IFileStore
     private readonly IClock _clock;
     private readonly BlobContainerClient _blobContainer;
     private readonly IContentTypeProvider _contentTypeProvider;
+
     private readonly string _basePrefix;
 
-    public BlobFileStore(BlobStorageOptions options, IClock clock, IContentTypeProvider contentTypeProvider)
+    public BlobFileStore(
+        BlobStorageOptions options,
+        IClock clock,
+        IContentTypeProvider contentTypeProvider)
     {
         _options = options;
         _clock = clock;
         _contentTypeProvider = contentTypeProvider;
-
         _blobContainer = new BlobContainerClient(_options.ConnectionString, _options.ContainerName);
 
         if (!string.IsNullOrEmpty(_options.BasePath))
@@ -386,7 +389,7 @@ public class BlobFileStore : IFileStore
 
             var headers = new BlobHttpHeaders
             {
-                ContentType = contentType ?? "application/octet-stream"
+                ContentType = contentType ?? "application/octet-stream",
             };
 
             await blob.UploadAsync(inputStream, headers);
@@ -436,6 +439,7 @@ public class BlobFileStore : IFileStore
 
         // Create a directory marker file to make this directory appear when listing directories.
         using var stream = new MemoryStream(MarkerFileContent);
+
         await placeholderBlob.UploadAsync(stream);
     }
 

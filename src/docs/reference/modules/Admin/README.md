@@ -4,7 +4,7 @@ The Admin module provides an admin dashboard for your site.
 
 ## Custom Admin prefix
 
-If you want to specify another prefix in the urls to access the admin section, you can change it by using this option in the appsettings.json:
+If you want to specify another prefix in the urls to access the admin section, you can change it by using this option in the `appsettings.json`:
 
 ``` json
   "OrchardCore": {
@@ -92,7 +92,7 @@ public class VisitSiteNavbarDisplayDriver : DisplayDriver<Navbar>
     public override IDisplayResult Display(Navbar model, BuildDisplayContext context)
     {
         return View("VisitSiteNavbarItem", model)
-            .Location("DetailAdmin", "Content:20");
+            .Location(OrchardCoreConstants.DisplayType.DetailAdmin, "Content:20");
     }
 }
 ```
@@ -104,7 +104,7 @@ You can change it by overriding 'VisitSiteNavbarItem' shape, either from a [cust
     ``` liquid
     <li class="nav-item">
         <a href="{{ '~' | absolute_url }}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ "Visit Site" | t }}" role="button">
-            <i class="fa-solid fa-fw fa-external-link" aria-hidden="true"></i>
+            <i class="fa-solid fa-external-link" aria-hidden="true"></i>
         </a>
     </li>
     ```
@@ -114,7 +114,7 @@ You can change it by overriding 'VisitSiteNavbarItem' shape, either from a [cust
     ``` html
     <li class="nav-item">
         <a href="@Url.Content("~/")" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@T["Visit Site"]" role="button">
-            <i class="fa-solid fa-fw fa-external-link" aria-hidden="true"></i>
+            <i class="fa-solid fa-external-link" aria-hidden="true"></i>
         </a>
     </li>
     ```

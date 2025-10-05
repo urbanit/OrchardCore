@@ -24,7 +24,7 @@ public class SetFeaturesShellDescriptorManager : IShellDescriptorManager
     {
         if (_shellDescriptor == null)
         {
-            var featureIds = _shellFeatures.Distinct().Select(sf => sf.Id).ToArray();
+            var featureIds = _shellFeatures.Distinct().Select(sf => sf.Id);
 
             var missingDependencies = (await _extensionManager.LoadFeaturesAsync(featureIds))
                 .Select(entry => entry.Id)
@@ -35,7 +35,7 @@ public class SetFeaturesShellDescriptorManager : IShellDescriptorManager
             {
                 Features = _shellFeatures
                     .Concat(missingDependencies)
-                    .ToList()
+                    .ToList(),
             };
         }
 

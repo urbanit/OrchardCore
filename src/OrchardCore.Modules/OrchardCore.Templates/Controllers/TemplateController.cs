@@ -104,7 +104,7 @@ public sealed class TemplateController : Controller
         {
             Templates = templates.Select(x => new TemplateEntry { Name = x.Key, Template = x.Value }).ToList(),
             Options = options,
-            Pager = pagerShape
+            Pager = pagerShape,
         };
 
         model.Options.ContentsBulkAction =
@@ -122,7 +122,7 @@ public sealed class TemplateController : Controller
     public ActionResult IndexFilterPOST(TemplateIndexViewModel model)
         => RedirectToAction(nameof(Index), new RouteValueDictionary
         {
-            { _optionsSearch, model.Options.Search }
+            { _optionsSearch, model.Options.Search },
         });
 
     public async Task<IActionResult> Create(string name = null, bool adminTemplates = false, string returnUrl = null)
@@ -140,7 +140,7 @@ public sealed class TemplateController : Controller
         var model = new TemplateViewModel
         {
             AdminTemplates = adminTemplates,
-            Name = name
+            Name = name,
         };
 
         ViewData["ReturnUrl"] = returnUrl;
@@ -164,26 +164,7 @@ public sealed class TemplateController : Controller
 
         if (ModelState.IsValid)
         {
-            if (string.IsNullOrWhiteSpace(model.Name))
-            {
-                ModelState.AddModelError(nameof(TemplateViewModel.Name), S["The name is mandatory."]);
-            }
-            else if (string.IsNullOrWhiteSpace(model.Content))
-            {
-                ModelState.AddModelError(nameof(TemplateViewModel.Content), S["The content is mandatory."]);
-            }
-            else
-            {
-                var templatesDocument = model.AdminTemplates
-                    ? await _adminTemplatesManager.GetTemplatesDocumentAsync()
-                    : await _templatesManager.GetTemplatesDocumentAsync()
-                    ;
-
-                if (templatesDocument.Templates.ContainsKey(model.Name))
-                {
-                    ModelState.AddModelError(nameof(TemplateViewModel.Name), S["A template with the same name already exists."]);
-                }
-            }
+            await ValidateModelAsync(model);
         }
 
         if (ModelState.IsValid)
@@ -238,7 +219,7 @@ public sealed class TemplateController : Controller
             AdminTemplates = adminTemplates,
             Name = name,
             Content = template.Content,
-            Description = template.Description
+            Description = template.Description,
         };
 
         ViewData["ReturnUrl"] = returnUrl;
@@ -265,18 +246,7 @@ public sealed class TemplateController : Controller
 
         if (ModelState.IsValid)
         {
-            if (string.IsNullOrWhiteSpace(model.Name))
-            {
-                ModelState.AddModelError(nameof(TemplateViewModel.Name), S["The name is mandatory."]);
-            }
-            else if (!model.Name.Equals(sourceName, StringComparison.OrdinalIgnoreCase) && templatesDocument.Templates.ContainsKey(model.Name))
-            {
-                ModelState.AddModelError(nameof(TemplateViewModel.Name), S["A template with the same name already exists."]);
-            }
-            else if (string.IsNullOrWhiteSpace(model.Content))
-            {
-                ModelState.AddModelError(nameof(TemplateViewModel.Content), S["The content is mandatory."]);
-            }
+            await ValidateModelAsync(model, templatesDocument, sourceName);
         }
 
         if (!templatesDocument.Templates.ContainsKey(sourceName))
@@ -393,6 +363,36 @@ public sealed class TemplateController : Controller
         else
         {
             return RedirectToAction(nameof(Index));
+        }
+    }
+
+    private async Task ValidateModelAsync(TemplateViewModel model, TemplatesDocument templatesDocument = null, string sourceName = null)
+    {
+        if (string.IsNullOrWhiteSpace(model.Name))
+        {
+            ModelState.AddModelError(nameof(TemplateViewModel.Name), S["The name is mandatory."]);
+        }
+        else
+        {
+            templatesDocument ??= model.AdminTemplates
+                ? await _adminTemplatesManager.GetTemplatesDocumentAsync()
+                : await _templatesManager.GetTemplatesDocumentAsync();
+
+            if (!model.Name.Equals(sourceName, StringComparison.OrdinalIgnoreCase) &&
+                templatesDocument.Templates.ContainsKey(model.Name))
+            {
+                ModelState.AddModelError(nameof(TemplateViewModel.Name), S["A template with the same name already exists."]);
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(model.Content))
+        {
+            var placementsLink = Url.ActionLink("Index", "Admin", new { area = "OrchardCore.Placements" });
+            var docsLink = "https://docs.orchardcore.net/en/main/reference/modules/Placements/";
+
+            await _notifier.WarningAsync(H["If you left the content empty because you want to hide the shape, use <a href=\"{0}\">Placements</a> instead. See <a href=\"{1}\">the docs</a> for more info about this feature.", placementsLink, docsLink]);
+
+            ModelState.AddModelError(nameof(TemplateViewModel.Content), S["The content is mandatory."]);
         }
     }
 }

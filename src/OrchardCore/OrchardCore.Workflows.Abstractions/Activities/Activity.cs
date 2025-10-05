@@ -14,7 +14,15 @@ public abstract class Activity : Entity, IActivity
     public abstract LocalizedString Category { get; }
     public virtual bool HasEditor => true;
 
-    public abstract IEnumerable<Outcome> GetPossibleOutcomes(WorkflowExecutionContext workflowContext, ActivityContext activityContext);
+    public virtual ValueTask<IEnumerable<Outcome>> GetPossibleOutcomesAsync(WorkflowExecutionContext workflowContext, ActivityContext activityContext)
+    {
+        return ValueTask.FromResult(GetPossibleOutcomes(workflowContext, activityContext));
+    }
+
+    public virtual IEnumerable<Outcome> GetPossibleOutcomes(WorkflowExecutionContext workflowContext, ActivityContext activityContext)
+    {
+        return [];
+    }
 
     public virtual Task<bool> CanExecuteAsync(WorkflowExecutionContext workflowContext, ActivityContext activityContext)
     {
@@ -146,6 +154,6 @@ public abstract class Activity : Entity, IActivity
     protected virtual void SetProperty(object value, [CallerMemberName] string name = null)
     {
         // Properties[name] = JToken.FromObject(value);
-        Properties[name] = JNode.FromObject(value);
+        Properties[name] = value is JsonNode node ? node.DeepClone() : JNode.FromObject(value);
     }
 }

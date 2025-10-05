@@ -59,12 +59,12 @@ public sealed class HtmlFieldDisplayDriver : ContentFieldDisplayDriver<HtmlField
                 new Context
                 {
                     ["ContentItem"] = field.ContentItem,
-                    ["PartFieldDefinition"] = context.PartFieldDefinition
+                    ["PartFieldDefinition"] = context.PartFieldDefinition,
                 });
 
         })
-        .Location("Detail", "Content")
-        .Location("Summary", "Content");
+        .Location(OrchardCoreConstants.DisplayType.Detail, "Content")
+        .Location(OrchardCoreConstants.DisplayType.Summary, "Content");
     }
 
     public override IDisplayResult Edit(HtmlField field, BuildFieldEditorContext context)

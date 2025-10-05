@@ -42,7 +42,7 @@ public sealed class Startup : StartupBase
                 {
                     {"Area", "OrchardCore.Sitemaps"},
                     {"Controller", "Sitemap"},
-                    {"Action", "Index"}
+                    {"Action", "Index"},
                 };
 
                 options.SitemapIdKey = "sitemapId";
@@ -75,7 +75,7 @@ public sealed class Startup : StartupBase
         services.AddScoped<ISitemapSourceBuilder, CustomPathSitemapSourceBuilder>();
         services.AddScoped<ISitemapSourceUpdateHandler, CustomPathSitemapSourceUpdateHandler>();
         services.AddScoped<ISitemapSourceModifiedDateProvider, CustomPathSitemapSourceModifiedDateProvider>();
-        services.AddScoped<IDisplayDriver<SitemapSource>, CustomPathSitemapSourceDriver>();
+        services.AddDisplayDriver<SitemapSource, CustomPathSitemapSourceDriver>();
         services.AddScoped<ISitemapSourceFactory, SitemapSourceFactory<CustomPathSitemapSource>>();
 
         services.AddRecipeExecutionStep<SitemapsStep>();

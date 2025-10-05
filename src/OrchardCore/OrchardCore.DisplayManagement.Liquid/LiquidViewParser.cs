@@ -10,12 +10,13 @@ namespace OrchardCore.DisplayManagement.Liquid;
 
 public class LiquidViewParser : FluidParser
 {
-    public LiquidViewParser(IOptions<LiquidViewOptions> liquidViewOptions)
-        : base(new FluidParserOptions() { AllowFunctions = true })
+    public LiquidViewParser(IOptions<LiquidViewOptions> liquidViewOptions, IOptions<FluidParserOptions> fluidParserOptions)
+        : base(fluidParserOptions?.Value ?? throw new ArgumentNullException(nameof(fluidParserOptions)))
     {
         RegisterEmptyTag("render_body", RenderBodyTag.WriteToAsync);
         RegisterParserTag("render_section", ArgumentsList, RenderSectionTag.WriteToAsync);
-        RegisterParserTag("page_title", ArgumentsList, RenderTitleSegmentsTag.WriteToAsync);
+        RegisterParserTag("page_title", ArgumentsList, PageTitleSegmentsTags.WritePageTitleAsync);
+        RegisterParserTag("page_title_add_segment", ArgumentsList, PageTitleSegmentsTags.WriteAddSegmentAsync);
         RegisterEmptyTag("antiforgerytoken", AntiForgeryTokenTag.WriteToAsync);
         RegisterExpressionTag("layout", LayoutTag.WriteToAsync);
 
