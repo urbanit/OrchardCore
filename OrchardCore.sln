@@ -533,6 +533,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrchardCore.UrlRewriting.Ab
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrchardCore.UrlRewriting.Core", "src\OrchardCore\OrchardCore.UrlRewriting.Core\OrchardCore.UrlRewriting.Core.csproj", "{7B18DD99-A7BB-4297-8679-D87289758756}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bootstrap5.OrchardCore", "src\OrchardCore.Themes\Bootstrap5.OrchardCore\Bootstrap5.OrchardCore.csproj", "{CBCD185E-254F-C9C8-84F8-1D7C3D807075}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1413,6 +1415,10 @@ Global
 		{7B18DD99-A7BB-4297-8679-D87289758756}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B18DD99-A7BB-4297-8679-D87289758756}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B18DD99-A7BB-4297-8679-D87289758756}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBCD185E-254F-C9C8-84F8-1D7C3D807075}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBCD185E-254F-C9C8-84F8-1D7C3D807075}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBCD185E-254F-C9C8-84F8-1D7C3D807075}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBCD185E-254F-C9C8-84F8-1D7C3D807075}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1657,6 +1663,7 @@ Global
 		{D0F8B342-BDA8-44CB-AA43-7A65C79636A2} = {A066395F-6F73-45DC-B5A6-B4E306110DCE}
 		{675C8A76-C64F-47EC-B4F5-06D4F2D9662A} = {F23AC6C2-DE44-4699-999D-3C478EF3D691}
 		{7B18DD99-A7BB-4297-8679-D87289758756} = {F23AC6C2-DE44-4699-999D-3C478EF3D691}
+		{CBCD185E-254F-C9C8-84F8-1D7C3D807075} = {AF3BADEA-CC93-4116-B3C1-F8D074EBEE4F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46A1D25A-78D1-4476-9CBF-25B75E296341}

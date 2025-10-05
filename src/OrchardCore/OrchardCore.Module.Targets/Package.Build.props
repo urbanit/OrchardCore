@@ -7,4 +7,5 @@
   <ItemGroup>
     <ModulePackageNames Include="$(MSBuildThisFileName)" />
   </ItemGroup>
+
 </Project>
