@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,7 +9,7 @@ using YesSql.Sql.Schema;
 
 namespace OrchardCore.Environment.Shell.Removing;
 
-internal class ShellDbTablesInfo : ISchemaBuilder
+internal sealed class ShellDbTablesInfo : ISchemaBuilder
 {
     private ICommandInterpreter _commandInterpreter;
     public string TablePrefix { get; set; }
@@ -117,14 +113,8 @@ internal class ShellDbTablesInfo : ISchemaBuilder
         return Task.CompletedTask;
     }
 
-    public ISchemaBuilder AlterIndexTable(Type indexType, Action<IAlterTableCommand> table, string collection)
-        => this;
-
     public Task AlterIndexTableAsync(Type indexType, Action<IAlterTableCommand> table, string collection)
         => Task.CompletedTask;
-
-    public ISchemaBuilder AlterTable(string name, Action<IAlterTableCommand> table)
-        => this;
 
     public Task AlterTableAsync(string name, Action<IAlterTableCommand> table)
         => Task.CompletedTask;
@@ -260,9 +250,6 @@ internal class ShellDbTablesInfo : ISchemaBuilder
         }
     }
 
-    public ISchemaBuilder CreateForeignKey(string name, string srcTable, string[] srcColumns, string destTable, string[] destColumns)
-        => this;
-
     public Task CreateForeignKeyAsync(string name, string srcTable, string[] srcColumns, string destTable, string[] destColumns)
         => Task.CompletedTask;
 
@@ -292,9 +279,6 @@ internal class ShellDbTablesInfo : ISchemaBuilder
 
         return Task.CompletedTask;
     }
-
-    public ISchemaBuilder CreateSchema(string schema)
-        => this;
 
     public Task CreateSchemaAsync(string schema)
         => Task.CompletedTask;

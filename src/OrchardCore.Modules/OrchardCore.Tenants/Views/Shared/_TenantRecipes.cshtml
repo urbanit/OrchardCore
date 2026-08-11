@@ -1,14 +1,10 @@
 @model EditTenantViewModel
 
-<h6>
-    @T["Recipe"]
-    <span class="text-muted form-text small">@T["Optionally specify which presets should be used for the Setup experience."]</span>
-</h6>
-<div class="row recipes" asp-validation-class-for="RecipeName">
-    <div class="mb-3 col-md-6">
+<div class="ocat-wrapper" asp-validation-class-for="RecipeName">
+    <label asp-for="RecipeName" class="ocat-label">@T["Recipe"]</label>
+    <div class="ocat-end">
         <select asp-for="RecipeName" class="form-select">
-
-            <option value=""></option>
+            <option value="">@T["Select a recipe"]</option>
             @foreach (var recipe in Model.Recipes)
             {
                 <option value="@recipe.Name" selected="@(Model.RecipeName == recipe.Name)">
@@ -16,5 +12,6 @@
                 </option>
             }
         </select>
+        <span class="hint">@T["Optionally specify which presets should be used for the Setup experience."]</span>
     </div>
 </div>

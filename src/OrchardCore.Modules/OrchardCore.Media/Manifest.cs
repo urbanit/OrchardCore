@@ -62,3 +62,45 @@ using OrchardCore.Modules.Manifest;
     ],
     Category = "Content Management"
 )]
+
+[assembly: Feature(
+    Id = "OrchardCore.Media.Security",
+    Name = "Secure Media",
+    Description = "Adds permissions to restrict access to media folders.",
+    Dependencies =
+    [
+        "OrchardCore.Media"
+    ],
+    After =
+    [
+        "OrchardCore.Users"
+    ],
+    Before =
+    [
+        "OrchardCore.Media"
+    ],
+    Category = "Content Management"
+)]
+
+[assembly: Feature(
+    Id = "OrchardCore.Media.Tus",
+    Name = "Media TUS Uploads",
+    Description = "Enables resumable file uploads using the TUS protocol. When enabled, replaces the default chunked upload mechanism with the TUS standard, allowing uploads to be paused and resumed.",
+    Dependencies =
+    [
+        "OrchardCore.Media"
+    ],
+    Category = "Content Management"
+)]
+
+[assembly: Feature(
+    Id = "OrchardCore.Media.SignalR",
+    Name = "Media SignalR",
+    Description = "Enables real-time media updates via SignalR. When enabled, changes to media files and folders are broadcast to connected clients.",
+    Dependencies =
+    [
+        "OrchardCore.Media",
+        "OrchardCore.SignalR"
+    ],
+    Category = "Content Management"
+)]

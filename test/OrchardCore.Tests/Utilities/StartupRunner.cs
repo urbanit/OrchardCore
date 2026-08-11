@@ -1,21 +1,26 @@
-namespace OrchardCore.Tests
+namespace OrchardCore.Tests;
+
+internal static class StartupRunner
 {
-    internal static class StartupRunner
+    public static async Task Run(Type startupType, string culture, string expected)
     {
-        public static async Task Run(Type startupType, string culture, string expected)
-        {
-            var webHostBuilder = new WebHostBuilder().UseStartup(startupType);
-            var testHost = new TestServer(webHostBuilder);
+        var builder = Host.CreateDefaultBuilder()
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseTestServer()
+                          .UseStartup(startupType);
+            });
 
-            var client = testHost.CreateClient();
-            var request = new HttpRequestMessage();
-            var cookieValue = $"c={culture}|uic={culture}";
-            request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
+        using var host = await builder.StartAsync();
+        var client = host.GetTestClient();
 
-            var response = await client.SendAsync(request);
+        var request = new HttpRequestMessage();
+        var cookieValue = $"c={culture}|uic={culture}";
+        request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(expected, await response.Content.ReadAsStringAsync());
-        }
+        var response = await client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(expected, await response.Content.ReadAsStringAsync());
     }
 }

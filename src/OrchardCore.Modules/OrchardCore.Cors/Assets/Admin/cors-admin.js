@@ -45,13 +45,14 @@ var corsApp = new Vue({
             this.selectedPolicy = {
                 name: 'New policy',
                 allowedOrigins: [],
-                allowAnyOrigin: true,
+                allowAnyOrigin: false,
                 allowedMethods: [],
                 allowAnyMethod: true,
                 allowedHeaders: [],
                 allowAnyHeader: true,
                 allowCredentials: true,
-                isDefaultPolicy: false
+                isDefaultPolicy: false,
+                exposedHeaders: []
             };
         },
         editPolicy: function (policy) {
@@ -93,8 +94,8 @@ var corsApp = new Vue({
             var searchBox = $('#search-box');
 
             // On Enter, edit the item if there is a single one
-            searchBox.keypress(function (event) {
-                if (event.which == 13) {
+            searchBox.keydown(function (e) {
+                if (e.key == 'Enter') {
 
                     // Edit the item if there is a single filtered element
                     var visible = $('#corsAdmin > ul > li:visible');
@@ -111,7 +112,7 @@ var corsApp = new Vue({
                 var elementsToFilter = $("[data-filter-value]");
 
                 // On ESC, clear the search box and display all
-                if (e.keyCode == 27 || search == '') {
+                if (e.key === 'Escape' || search == '') {
                     searchBox.val('');
                     elementsToFilter.toggle(true);
                     $('#list-alert').addClass("d-none");

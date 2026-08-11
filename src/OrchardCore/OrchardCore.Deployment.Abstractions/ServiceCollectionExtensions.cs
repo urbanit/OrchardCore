@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OrchardCore.DisplayManagement.Handlers;
 
 namespace OrchardCore.Deployment;
@@ -16,7 +17,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDeployment<TSource, TStep>(this IServiceCollection services)
         where TSource : IDeploymentSource
-        where TStep : DeploymentStep, new()
+        where TStep : DeploymentStep
     {
         services.AddDeploymentSource<TSource>()
             .AddDeploymentStep<TStep>();
@@ -26,7 +27,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDeployment<TSource, TStep, TDisplayDriver>(this IServiceCollection services)
         where TSource : IDeploymentSource
-        where TStep : DeploymentStep, new()
+        where TStep : DeploymentStep
         where TDisplayDriver : DisplayDriver<DeploymentStep, TStep>
     {
         services.AddDeployment<TSource, TStep>()
@@ -36,7 +37,7 @@ public static class ServiceCollectionExtensions
     }
 
     public static IServiceCollection AddDeploymentWithoutSource<TStep, TDisplayDriver>(this IServiceCollection services)
-        where TStep : DeploymentStep, new()
+        where TStep : DeploymentStep
         where TDisplayDriver : DisplayDriver<DeploymentStep, TStep>
     {
         services.AddDeploymentStep<TStep>()
@@ -48,15 +49,15 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddDeploymentSource<TSource>(this IServiceCollection services)
         where TSource : IDeploymentSource
     {
-        services.AddTransient(typeof(IDeploymentSource), typeof(TSource));
+        services.TryAddEnumerable(ServiceDescriptor.Transient(typeof(IDeploymentSource), typeof(TSource)));
 
         return services;
     }
 
     private static IServiceCollection AddDeploymentStep<TStep>(this IServiceCollection services)
-        where TStep : DeploymentStep, new()
+        where TStep : DeploymentStep
     {
-        services.AddSingleton<IDeploymentStepFactory>(new DeploymentStepFactory<TStep>());
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IDeploymentStepFactory, DeploymentStepFactory<TStep>>());
 
         // TStep instances are part for DeploymentPlan objects that are serialized to JSON
         services.AddJsonDerivedTypeInfo<TStep, DeploymentStep>();
@@ -66,9 +67,9 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddDeploymentStepDisplayDriver<TDisplayDriver, TStep>(this IServiceCollection services)
         where TDisplayDriver : DisplayDriver<DeploymentStep, TStep>
-        where TStep : DeploymentStep, new()
+        where TStep : DeploymentStep
     {
-        services.AddScoped<IDisplayDriver<DeploymentStep>, TDisplayDriver>();
+        services.AddDisplayDriver<DeploymentStep, TDisplayDriver>();
 
         return services;
     }

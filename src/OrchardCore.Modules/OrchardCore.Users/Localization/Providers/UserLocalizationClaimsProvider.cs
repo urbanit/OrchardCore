@@ -1,6 +1,4 @@
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using OrchardCore.Entities;
 using OrchardCore.Users.Localization.Models;
 using OrchardCore.Users.Models;
@@ -22,14 +20,9 @@ public class UserLocalizationClaimsProvider : IUserClaimsProvider
             return Task.CompletedTask;
         }
 
-        if (currentUser.Has<UserLocalizationSettings>())
+        if (currentUser.TryGet<UserLocalizationSettings>(out var localizationSetting) && localizationSetting.Culture != "none")
         {
-            var localizationSetting = currentUser.As<UserLocalizationSettings>();
-
-            if (localizationSetting.Culture != "none")
-            {
-                claims.AddClaim(new Claim(CultureClaimType, localizationSetting.Culture == UserLocalizationConstants.Invariant ? "" : localizationSetting.Culture));
-            }
+            claims.AddClaim(new Claim(CultureClaimType, localizationSetting.Culture == UserLocalizationConstants.Invariant ? "" : localizationSetting.Culture));
         }
 
         return Task.CompletedTask;

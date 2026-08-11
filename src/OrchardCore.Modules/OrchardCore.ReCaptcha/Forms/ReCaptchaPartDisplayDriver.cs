@@ -1,38 +1,34 @@
+using Microsoft.Extensions.Options;
 using OrchardCore.ContentManagement.Display.ContentDisplay;
 using OrchardCore.ContentManagement.Display.Models;
 using OrchardCore.DisplayManagement.Views;
 using OrchardCore.ReCaptcha.Configuration;
 using OrchardCore.Settings;
 
-namespace OrchardCore.ReCaptcha.Forms
+namespace OrchardCore.ReCaptcha.Forms;
+
+public sealed class ReCaptchaPartDisplayDriver : ContentPartDisplayDriver<ReCaptchaPart>
 {
-    public class ReCaptchaPartDisplayDriver : ContentPartDisplayDriver<ReCaptchaPart>
+    private readonly ReCaptchaSettings _settings;
+
+    public ReCaptchaPartDisplayDriver(IOptions<ReCaptchaSettings> options)
     {
-        private readonly ISiteService _siteService;
+        _settings = options.Value;
+    }
 
-        public ReCaptchaPartDisplayDriver(ISiteService siteService)
+    public override IDisplayResult Display(ReCaptchaPart part, BuildPartDisplayContext context)
+    {
+        return Initialize<ReCaptchaPartViewModel>("ReCaptchaPart", async model =>
         {
-            _siteService = siteService;
-        }
+            model.SettingsAreConfigured = _settings.ConfigurationExists();
+        }).Location(OrchardCoreConstants.DisplayType.Detail, "Content");
+    }
 
-        public override IDisplayResult Display(ReCaptchaPart part, BuildPartDisplayContext context)
+    public override IDisplayResult Edit(ReCaptchaPart part, BuildPartEditorContext context)
+    {
+        return Initialize<ReCaptchaPartViewModel>("ReCaptchaPart_Fields_Edit", async model =>
         {
-            return Initialize<ReCaptchaPartViewModel>("ReCaptchaPart", async model =>
-            {
-                var siteSettings = await _siteService.GetSiteSettingsAsync();
-                var settings = siteSettings.As<ReCaptchaSettings>();
-                model.SettingsAreConfigured = settings.IsValid();
-            }).Location("Detail", "Content");
-        }
-
-        public override IDisplayResult Edit(ReCaptchaPart part, BuildPartEditorContext context)
-        {
-            return Initialize<ReCaptchaPartViewModel>("ReCaptchaPart_Fields_Edit", async model =>
-            {
-                var siteSettings = await _siteService.GetSiteSettingsAsync();
-                var settings = siteSettings.As<ReCaptchaSettings>();
-                model.SettingsAreConfigured = settings.IsValid();
-            });
-        }
+            model.SettingsAreConfigured = _settings.ConfigurationExists();
+        });
     }
 }

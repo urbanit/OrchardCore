@@ -1,7 +1,5 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Text;
+using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,20 +7,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OrchardCore.Data.Migration;
 using OrchardCore.Environment.Shell;
 using OrchardCore.Environment.Shell.Configuration;
+using OrchardCore.Environment.Shell.Scope;
 using OrchardCore.FileStorage;
 using OrchardCore.FileStorage.AmazonS3;
+using OrchardCore.Media.AmazonS3.Services;
 using OrchardCore.Media.Core;
 using OrchardCore.Media.Core.Events;
 using OrchardCore.Media.Events;
+using OrchardCore.Media.Services;
 using OrchardCore.Modules;
 using OrchardCore.Navigation;
 using OrchardCore.Security.Permissions;
 
 namespace OrchardCore.Media.AmazonS3;
 
-public class Startup : Modules.StartupBase
+public sealed class Startup : Modules.StartupBase
 {
     private readonly ILogger _logger;
     private readonly IShellConfiguration _configuration;
@@ -32,13 +34,15 @@ public class Startup : Modules.StartupBase
         => (_configuration, _logger)
             = (configuration, logger);
 
+    static Startup() => AWSConfigs.InitializeCollections = true;
+
     public override void ConfigureServices(IServiceCollection services)
     {
-        services.AddScoped<IPermissionProvider, Permissions>();
-        services.AddScoped<INavigationProvider, AdminMenu>();
+        services.AddPermissionProvider<Permissions>();
+        services.AddNavigationProvider<AdminMenu>();
         services.AddTransient<IConfigureOptions<AwsStorageOptions>, AwsStorageOptionsConfiguration>();
 
-        var storeOptions = new AwsStorageOptions().BindConfiguration(_configuration, _logger);
+        var storeOptions = new AwsStorageOptions().BindConfiguration(AmazonS3Constants.ConfigSections.AmazonS3, _configuration, _logger);
         var validationErrors = storeOptions.Validate().ToList();
         var stringBuilder = new StringBuilder();
 
@@ -53,8 +57,11 @@ public class Startup : Modules.StartupBase
         }
         else
         {
-            _logger.LogInformation(
-                "Starting with S3 Media Configuration. BucketName: {BucketName}; BasePath: {BasePath}", storeOptions.BucketName, storeOptions.BasePath);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Starting with S3 Media Configuration. BucketName: {BucketName}; BasePath: {BasePath}", storeOptions.BucketName, storeOptions.BasePath);
+            }
 
             services.AddSingleton<IMediaFileStoreCacheFileProvider>(serviceProvider =>
             {
@@ -131,4 +138,92 @@ public class Startup : Modules.StartupBase
 
     private static string GetMediaCachePath(IWebHostEnvironment hostingEnvironment, ShellSettings shellSettings, string assetsPath)
         => PathExtensions.Combine(hostingEnvironment.WebRootPath, shellSettings.Name, assetsPath);
+}
+
+[Feature("OrchardCore.Media.AmazonS3.ImageCache")]
+public sealed class MediaAmazonS3ImageCacheStartup : Modules.StartupBase
+{
+    private readonly IShellConfiguration _configuration;
+    private readonly ILogger _logger;
+
+    public MediaAmazonS3ImageCacheStartup(
+        IShellConfiguration configuration,
+        ILogger<MediaAmazonS3ImageCacheStartup> logger)
+    {
+        _configuration = configuration;
+        _logger = logger;
+    }
+
+    public override void ConfigureServices(IServiceCollection services)
+    {
+        services.AddTransient<IConfigureOptions<AwsMediaImageCacheOptions>, AwsMediaImageCacheOptionsConfiguration>();
+
+        var storeOptions = new AwsStorageOptions().BindConfiguration(AmazonS3Constants.ConfigSections.AmazonS3ImageCache, _configuration, _logger);
+        var validationErrors = storeOptions.Validate().ToList();
+        var stringBuilder = new StringBuilder();
+
+        if (validationErrors.Count > 0)
+        {
+            foreach (var error in validationErrors)
+            {
+                stringBuilder.Append(error.ErrorMessage);
+            }
+
+            _logger.LogError("S3 Media Image Cache configuration validation failed with errors: {Errors} — falling back to local file storage.", stringBuilder);
+        }
+        else
+        {
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Starting with S3 Media Image Cache configuration. BucketName: {BucketName}; BasePath: {BasePath}", storeOptions.BucketName, storeOptions.BasePath);
+            }
+
+            services.Replace(ServiceDescriptor.Singleton<IResizedImageCache, AWSS3ResizedImageCache>());
+
+            services.AddScoped<IModularTenantEvents, AwsS3MediaImageCacheTenantEvents>();
+        }
+    }
+}
+
+[RequireFeatures("OrchardCore.Media.Tus")]
+public sealed class MediaAmazonS3TusStartup : Modules.StartupBase
+{
+    public override void ConfigureServices(IServiceCollection services)
+    {
+        services.Replace(ServiceDescriptor.Singleton<ITusTempStore, S3TusTempStore>());
+    }
+}
+
+// Keeps the renamed feature enabled on sites that had the legacy
+// "OrchardCore.Media.AmazonS3.ImageSharpImageCache" feature enabled before the rename. The legacy
+// feature depends on the new one, and this migration explicitly enables the new feature so it
+// remains active in its own right once the obsolete feature is removed.
+[Feature("OrchardCore.Media.AmazonS3.ImageSharpImageCache")]
+public sealed class LegacyImageCacheFeatureStartup : Modules.StartupBase
+{
+    public override void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDataMigration<LegacyImageCacheFeatureMigrations>();
+    }
+}
+
+internal sealed class LegacyImageCacheFeatureMigrations : DataMigration
+{
+    public static int Create()
+    {
+        ShellScope.AddDeferredTask(async scope =>
+        {
+            var featuresManager = scope.ServiceProvider.GetRequiredService<IShellFeaturesManager>();
+
+            if (await featuresManager.IsFeatureEnabledAsync("OrchardCore.Media.AmazonS3.ImageCache"))
+            {
+                return;
+            }
+
+            await featuresManager.EnableFeaturesAsync("OrchardCore.Media.AmazonS3.ImageCache");
+        });
+
+        return 1;
+    }
 }

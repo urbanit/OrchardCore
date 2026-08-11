@@ -1,4 +1,4 @@
-<div class="d-flex justify-content-between align-items-center">
+<div class="d-flex justify-content-between flex-wrap">
     <div class="d-flex flex-column">
         <div>
             @if (Model.Header != null)
@@ -12,11 +12,6 @@
                     @await DisplayAsync(Model.Meta)
                 </div>
             }
-
-            @if (Model.Content != null)
-            {
-                <div class="primary">@await DisplayAsync(Model.Content)</div>
-            }
         </div>
 
         @if (Model.Description != null)
@@ -25,10 +20,29 @@
         }
     </div>
 
-    @if (Model.Actions != null)
-    {
-        <div>
+    <div>
+        @if (Model.Actions != null)
+        {
             @await DisplayAsync(Model.Actions)
+        }
+
+        @if (Model.ActionsMenu != null && Model.ActionsMenu.HasItems)
+        {
+            <div class="btn-group" title="@T["Actions"]">
+                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle actions" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span>@T["Actions"]</span>
+                </button>
+                <ul class="actions-menu dropdown-menu dropdown-menu-end">
+                    @await DisplayAsync(Model.ActionsMenu)
+                </ul>
+            </div>
+        }
+    </div>
+
+    @if (Model.Content != null)
+    {
+        <div class="w-100 primary">
+                @await DisplayAsync(Model.Content)
         </div>
     }
 </div>

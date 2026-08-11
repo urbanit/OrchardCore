@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using OrchardCore.ArchiveLater.Models;
 using OrchardCore.ContentManagement;
@@ -25,9 +21,7 @@ public class ArchiveLaterPartIndexProvider : ContentHandlerBase, IIndexProvider,
 
     public override async Task UpdatedAsync(UpdateContentContext context)
     {
-        var part = context.ContentItem.As<ArchiveLaterPart>();
-
-        if (part != null)
+        if (context.ContentItem.TryGet<ArchiveLaterPart>(out _))
         {
             _contentDefinitionManager ??= _serviceProvider.GetRequiredService<IContentDefinitionManager>();
 
@@ -58,8 +52,7 @@ public class ArchiveLaterPartIndexProvider : ContentHandlerBase, IIndexProvider,
                     return null;
                 }
 
-                var part = contentItem.As<ArchiveLaterPart>();
-                if (part == null || !part.ScheduledArchiveUtc.HasValue)
+                if (!contentItem.TryGet<ArchiveLaterPart>(out var part) || !part.ScheduledArchiveUtc.HasValue)
                 {
                     return null;
                 }
@@ -69,7 +62,7 @@ public class ArchiveLaterPartIndexProvider : ContentHandlerBase, IIndexProvider,
                     ContentItemId = part.ContentItem.ContentItemId,
                     ScheduledArchiveDateTimeUtc = part.ScheduledArchiveUtc,
                     Published = part.ContentItem.Published,
-                    Latest = part.ContentItem.Latest
+                    Latest = part.ContentItem.Latest,
                 };
             });
     }

@@ -1,10 +1,9 @@
-using System.Linq;
 using Microsoft.Extensions.Options;
 using OrchardCore.Settings;
 
-namespace OrchardCore.Email.Core.Services;
+namespace OrchardCore.Email.Services;
 
-public class EmailOptionsConfiguration : IConfigureOptions<EmailOptions>
+public sealed class EmailOptionsConfiguration : IConfigureOptions<EmailOptions>
 {
     private readonly ISiteService _siteService;
     private readonly EmailProviderOptions _emailProviderOptions;
@@ -19,9 +18,7 @@ public class EmailOptionsConfiguration : IConfigureOptions<EmailOptions>
 
     public void Configure(EmailOptions options)
     {
-        var site = _siteService.GetSiteSettingsAsync().GetAwaiter().GetResult();
-
-        var emailSettings = site.As<EmailSettings>();
+        var emailSettings = _siteService.GetSettings<EmailSettings>();
 
         if (!string.IsNullOrEmpty(emailSettings.DefaultProviderName)
             && _emailProviderOptions.Providers.TryGetValue(emailSettings.DefaultProviderName, out var provider)
@@ -39,8 +36,6 @@ public class EmailOptionsConfiguration : IConfigureOptions<EmailOptions>
                 .Select(x => x.Key)
                 .LastOrDefault()
                 ?? _emailProviderOptions.Providers.Keys.Last();
-
-            return;
         }
     }
 }

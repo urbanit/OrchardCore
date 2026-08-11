@@ -1,25 +1,24 @@
 using Microsoft.Extensions.Options;
 using OrchardCore.ResourceManagement;
 
-namespace OrchardCore.Templates
+namespace OrchardCore.Templates;
+
+public sealed class ResourceManagementOptionsConfiguration : IConfigureOptions<ResourceManagementOptions>
 {
-    public class ResourceManagementOptionsConfiguration : IConfigureOptions<ResourceManagementOptions>
+    private static readonly ResourceManifest s_manifest;
+
+    static ResourceManagementOptionsConfiguration()
     {
-        private static readonly ResourceManifest _manifest;
+        s_manifest = new ResourceManifest();
 
-        static ResourceManagementOptionsConfiguration()
-        {
-            _manifest = new ResourceManifest();
+        s_manifest
+            .DefineScript("templatepreview-edit")
+            .SetUrl("~/OrchardCore.Templates/Scripts/templatepreview.edit.min.js", "~/OrchardCore.Templates/Scripts/templatepreview.edit.js")
+            .SetVersion("1.0.0");
+    }
 
-            _manifest
-                .DefineScript("templatepreview-edit")
-                .SetUrl("~/OrchardCore.Templates/Scripts/templatepreview.edit.min.js", "~/OrchardCore.Templates/Scripts/templatepreview.edit.js")
-                .SetVersion("1.0.0");
-        }
-
-        public void Configure(ResourceManagementOptions options)
-        {
-            options.ResourceManifests.Add(_manifest);
-        }
+    public void Configure(ResourceManagementOptions options)
+    {
+        options.ResourceManifests.Add(s_manifest);
     }
 }

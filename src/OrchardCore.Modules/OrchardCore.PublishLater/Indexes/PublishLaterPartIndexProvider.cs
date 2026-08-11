@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using OrchardCore.ContentManagement;
 using OrchardCore.ContentManagement.Handlers;
@@ -23,23 +19,27 @@ public class PublishLaterPartIndexProvider : ContentHandlerBase, IIndexProvider,
         _serviceProvider = serviceProvider;
     }
 
-    public override async Task UpdatedAsync(UpdateContentContext context)
-    {
-        var part = context.ContentItem.As<PublishLaterPart>();
+    public override Task CreatedAsync(CreateContentContext context)
+        => UpdatePublishLaterPartAsync(context.ContentItem);
 
+    public override Task UpdatedAsync(UpdateContentContext context)
+        => UpdatePublishLaterPartAsync(context.ContentItem);
+
+    private async Task UpdatePublishLaterPartAsync(ContentItem contentItem)
+    {
         // Validate that the content definition contains this part, this prevents indexing parts
         // that have been removed from the type definition, but are still present in the elements.            
-        if (part != null)
+        if (contentItem.TryGet<PublishLaterPart>(out _))
         {
             // Lazy initialization because of ISession cyclic dependency.
             _contentDefinitionManager ??= _serviceProvider.GetRequiredService<IContentDefinitionManager>();
 
             // Search for this part.
-            var contentTypeDefinition = await _contentDefinitionManager.GetTypeDefinitionAsync(context.ContentItem.ContentType);
+            var contentTypeDefinition = await _contentDefinitionManager.GetTypeDefinitionAsync(contentItem.ContentType);
             if (!contentTypeDefinition.Parts.Any(ctd => ctd.Name == nameof(PublishLaterPart)))
             {
-                context.ContentItem.Remove<PublishLaterPart>();
-                _partRemoved.Add(context.ContentItem.ContentItemId);
+                contentItem.Remove<PublishLaterPart>();
+                _partRemoved.Add(contentItem.ContentItemId);
             }
         }
     }
@@ -60,8 +60,7 @@ public class PublishLaterPartIndexProvider : ContentHandlerBase, IIndexProvider,
                     return null;
                 }
 
-                var part = contentItem.As<PublishLaterPart>();
-                if (part == null || !part.ScheduledPublishUtc.HasValue)
+                if (!contentItem.TryGet<PublishLaterPart>(out var part) || !part.ScheduledPublishUtc.HasValue)
                 {
                     return null;
                 }
@@ -71,7 +70,7 @@ public class PublishLaterPartIndexProvider : ContentHandlerBase, IIndexProvider,
                     ContentItemId = part.ContentItem.ContentItemId,
                     ScheduledPublishDateTimeUtc = part.ScheduledPublishUtc,
                     Published = part.ContentItem.Published,
-                    Latest = part.ContentItem.Latest
+                    Latest = part.ContentItem.Latest,
                 };
             });
     }

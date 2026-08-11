@@ -6,11 +6,10 @@ using OrchardCore.Email.Smtp.Drivers;
 using OrchardCore.Email.Smtp.Extensions;
 using OrchardCore.Email.Smtp.Services;
 using OrchardCore.Environment.Shell.Configuration;
-using OrchardCore.Settings;
 
 namespace OrchardCore.Email.Smtp;
 
-public class Startup
+public sealed class Startup
 {
     private readonly IShellConfiguration _shellConfiguration;
 
@@ -22,8 +21,9 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddSmtpEmailProvider()
-            .AddScoped<IDisplayDriver<ISite>, SmtpSettingsDisplayDriver>()
-            .AddTransient<IConfigureOptions<SmtpOptions>, SmtpOptionsConfiguration>();
+            .AddSiteDisplayDriver<SmtpSettingsDisplayDriver>()
+            .AddTransient<IConfigureOptions<SmtpOptions>, SmtpOptionsConfiguration>()
+            .AddTransient<IPostConfigureOptions<DefaultSmtpOptions>, DefaultSmtpOptionsConfiguration>();
 
         services.Configure<DefaultSmtpOptions>(options =>
         {

@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using Microsoft.Extensions.Localization;
+using OrchardCore.Infrastructure;
 
 namespace OrchardCore.Notifications;
 
@@ -24,6 +24,7 @@ public interface INotificationMethodProvider
     /// </summary>
     /// <param name="notify">The notifiable object.</param>
     /// <param name="message">The <see cref="INotificationMessage"/>.</param>
-    /// <returns><c>true</c> when the message was successfully sent otherwise <c>false</c>.</returns>
-    Task<bool> TrySendAsync(object notify, INotificationMessage message);
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A <see cref="Result"/> describing whether the notification method sent the message successfully.</returns>
+    Task<Result> SendAsync(object notify, INotificationMessage message, CancellationToken cancellationToken = default);
 }

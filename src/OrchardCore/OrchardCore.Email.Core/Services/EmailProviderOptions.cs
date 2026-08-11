@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Frozen;
-using System.Collections.Generic;
 
-namespace OrchardCore.Email.Core.Services;
+namespace OrchardCore.Email.Services;
 
 public class EmailProviderOptions
 {

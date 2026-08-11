@@ -1,23 +1,14 @@
 [
   {
-    "generateSourceMaps": false,
-    "generateRTL": true,
-    "inputs": [
-      "Assets/scss/media.scss"
-    ],
-    "output": "wwwroot/Styles/media.css"
+    "action": "vite",
+    "name": "media-gallery",
+    "source": "Assets/media-gallery",
+    "tags": ["admin", "dashboard", "js"]
   },
   {
-    "inputs": [
-      "./node_modules/blueimp-file-upload/js/jquery.fileupload.js",
-      "./node_modules/blueimp-file-upload/js/jquery.iframe-transport.js",
-      "Assets/js/helpers.js",
-      "Assets/js/app/**/*.js"
-    ],
-    "watch": [
-      "Assets/js/helpers.js",
-      "Assets/js/app/**/*.js"
-    ],
-    "output": "wwwroot/Scripts/media.js"
+    "action": "vite",
+    "name": "media-picker",
+    "source": "Assets/media-picker",
+    "tags": ["admin", "dashboard", "js"]
   }
 ]

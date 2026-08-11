@@ -1,18 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using OrchardCore.Modules;
 
 namespace OrchardCore.FileStorage.AmazonS3;
-
-using static String;
-
 /// <summary>
 /// Provides an <see cref="IFileStore"/> implementation that targets an underlying Amazon S3 Bucket account.
 /// </summary>
@@ -23,13 +15,17 @@ public class AwsFileStore : IFileStore
     private readonly string _basePrefix;
     private readonly IAmazonS3 _amazonS3Client;
 
+    public string StorageName => "Amazon S3";
+
+    public IFileStoreCapabilities Capabilities { get; } = new FileStoreCapabilities(hasHierarchicalNamespace: false, supportsAtomicMove: false);
+
     public AwsFileStore(IClock clock, AwsStorageOptions options, IAmazonS3 amazonS3Client)
     {
         _clock = clock;
         _options = options;
         _amazonS3Client = amazonS3Client;
 
-        if (!IsNullOrEmpty(_options.BasePath))
+        if (!string.IsNullOrEmpty(_options.BasePath))
         {
             _basePrefix = NormalizePrefix(_options.BasePath);
         }
@@ -42,21 +38,24 @@ public class AwsFileStore : IFileStore
             var objectMetadata = await _amazonS3Client.GetObjectMetadataAsync(new GetObjectMetadataRequest
             {
                 BucketName = _options.BucketName,
-                Key = this.Combine(_basePrefix, path)
+                Key = this.Combine(_basePrefix, path),
             });
 
             return new AwsFile(path, objectMetadata.ContentLength, objectMetadata.LastModified);
         }
-        // Bucket or file does not exist
-        catch (AmazonS3Exception)
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             return null;
+        }
+        catch (AmazonS3Exception ex)
+        {
+            throw new FileStoreException($"Error retrieving file info for '{path}': {ex.Message}", ex);
         }
     }
 
     public async Task<IFileStoreEntry> GetDirectoryInfoAsync(string path)
     {
-        if (IsNullOrEmpty(path))
+        if (string.IsNullOrEmpty(path))
         {
             return new AwsDirectory(path, _clock.UtcNow);
         }
@@ -66,15 +65,17 @@ public class AwsFileStore : IFileStore
             BucketName = _options.BucketName,
             Prefix = NormalizePrefix(this.Combine(_basePrefix, path)),
             MaxKeys = 1,
-            FetchOwner = false
+            FetchOwner = false,
         });
 
-        return awsDirectory.S3Objects.Count > 0 ? new AwsDirectory(path, _clock.UtcNow) : null;
+        return awsDirectory.S3Objects?.Count > 0 ? new AwsDirectory(path, _clock.UtcNow) : null;
     }
 
     public async IAsyncEnumerable<IFileStoreEntry> GetDirectoryContentAsync(string path = null,
         bool includeSubDirectories = false)
     {
+        path = this.NormalizePath(path);
+
         var listObjectsResponse = await _amazonS3Client.ListObjectsV2Async(new ListObjectsV2Request
         {
             BucketName = _options.BucketName,
@@ -83,13 +84,13 @@ public class AwsFileStore : IFileStore
             FetchOwner = false,
         });
 
-        foreach (var file in listObjectsResponse.S3Objects)
+        foreach (var file in listObjectsResponse.S3Objects ?? [])
         {
             var itemName = Path.GetFileName(WebUtility.UrlDecode(file.Key));
 
-            if (includeSubDirectories || !IsNullOrEmpty(itemName))
+            if (includeSubDirectories || !string.IsNullOrEmpty(itemName))
             {
-                if (IsNullOrEmpty(path))
+                if (string.IsNullOrEmpty(path))
                 {
                     path = "/";
                 }
@@ -98,10 +99,10 @@ public class AwsFileStore : IFileStore
             }
         }
 
-        foreach (var awsFolderPath in listObjectsResponse.CommonPrefixes)
+        foreach (var awsFolderPath in listObjectsResponse.CommonPrefixes ?? [])
         {
             var folderPath = awsFolderPath;
-            if (!IsNullOrEmpty(_basePrefix))
+            if (!string.IsNullOrEmpty(_basePrefix))
             {
                 folderPath = folderPath[(_basePrefix.Length - 1)..];
             }
@@ -118,14 +119,18 @@ public class AwsFileStore : IFileStore
             var response = await _amazonS3Client.PutObjectAsync(new PutObjectRequest
             {
                 BucketName = _options.BucketName,
-                Key = NormalizePrefix(this.Combine(_basePrefix, path))
+                Key = NormalizePrefix(this.Combine(_basePrefix, path)),
             });
 
             return response.IsSuccessful();
         }
-        catch (AmazonS3Exception)
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             return false;
+        }
+        catch (AmazonS3Exception ex)
+        {
+            throw new FileStoreException($"Error creating directory '{path}': {ex.Message}", ex);
         }
     }
 
@@ -136,20 +141,24 @@ public class AwsFileStore : IFileStore
             var response = await _amazonS3Client.DeleteObjectAsync(new DeleteObjectRequest
             {
                 BucketName = _options.BucketName,
-                Key = this.Combine(_basePrefix, path)
+                Key = this.Combine(_basePrefix, path),
             });
 
             return response.IsDeleteSuccessful();
         }
-        catch (AmazonS3Exception)
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             return false;
+        }
+        catch (AmazonS3Exception ex)
+        {
+            throw new FileStoreException($"Error deleting file '{path}': {ex.Message}", ex);
         }
     }
 
     public async Task<bool> TryDeleteDirectoryAsync(string path)
     {
-        if (IsNullOrWhiteSpace(path))
+        if (string.IsNullOrWhiteSpace(path))
         {
             throw new FileStoreException("Cannot delete root directory.");
         }
@@ -157,16 +166,16 @@ public class AwsFileStore : IFileStore
         var listObjectsResponse = await _amazonS3Client.ListObjectsV2Async(new ListObjectsV2Request
         {
             BucketName = _options.BucketName,
-            Prefix = NormalizePrefix(this.Combine(_basePrefix, path))
+            Prefix = NormalizePrefix(this.Combine(_basePrefix, path)),
         });
 
-        if (listObjectsResponse.S3Objects.Count > 0)
+        if (listObjectsResponse.S3Objects?.Count > 0)
         {
             var deleteObjectsRequest = new DeleteObjectsRequest
             {
                 BucketName = _options.BucketName,
                 Objects = listObjectsResponse.S3Objects
-                    .Select(metadata => new KeyVersion { Key = metadata.Key }).ToList()
+                    .Select(metadata => new KeyVersion { Key = metadata.Key }).ToList(),
             };
 
             var response = await _amazonS3Client.DeleteObjectsAsync(deleteObjectsRequest);
@@ -194,12 +203,16 @@ public class AwsFileStore : IFileStore
             await _amazonS3Client.GetObjectMetadataAsync(new GetObjectMetadataRequest
             {
                 BucketName = _options.BucketName,
-                Key = this.Combine(_basePrefix, srcPath)
+                Key = this.Combine(_basePrefix, srcPath),
             });
         }
-        catch (AmazonS3Exception)
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             throw new FileStoreException($"Cannot copy file '{srcPath}' because it does not exist.");
+        }
+        catch (AmazonS3Exception ex)
+        {
+            throw new FileStoreException($"Error accessing file '{srcPath}': {ex.Message}", ex);
         }
 
         try
@@ -207,12 +220,12 @@ public class AwsFileStore : IFileStore
             var listObjects = await _amazonS3Client.ListObjectsV2Async(new ListObjectsV2Request
             {
                 BucketName = _options.BucketName,
-                Prefix = this.Combine(_basePrefix, dstPath)
+                Prefix = this.Combine(_basePrefix, dstPath),
             });
 
-            if (listObjects.S3Objects.Count > 0)
+            if (listObjects.S3Objects?.Count > 0)
             {
-                throw new FileStoreException($"Cannot copy file '{srcPath}' because a file already exists in the new path '{dstPath}'.");
+                throw new ExistsFileStoreException($"Cannot copy file '{srcPath}' because a file already exists in the new path '{dstPath}'.");
             }
 
             var copyObjectResponse = await _amazonS3Client.CopyObjectAsync(new CopyObjectRequest
@@ -220,7 +233,7 @@ public class AwsFileStore : IFileStore
                 SourceBucket = _options.BucketName,
                 SourceKey = this.Combine(_basePrefix, srcPath),
                 DestinationBucket = _options.BucketName,
-                DestinationKey = this.Combine(_basePrefix, dstPath)
+                DestinationKey = this.Combine(_basePrefix, dstPath),
             });
 
             if (!copyObjectResponse.IsSuccessful())
@@ -229,9 +242,9 @@ public class AwsFileStore : IFileStore
             }
 
         }
-        catch (AmazonS3Exception)
+        catch (AmazonS3Exception ex)
         {
-            throw new FileStoreException($"Error while copying file '{srcPath}'");
+            throw new FileStoreException($"Error while copying file '{srcPath}': {ex.Message}", ex);
         }
     }
 
@@ -242,9 +255,13 @@ public class AwsFileStore : IFileStore
             var transferUtility = new TransferUtility(_amazonS3Client);
             return transferUtility.OpenStreamAsync(_options.BucketName, this.Combine(_basePrefix, path));
         }
-        catch (AmazonS3Exception)
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             throw new FileStoreException($"Cannot get file stream because the file '{path}' does not exist.");
+        }
+        catch (AmazonS3Exception ex)
+        {
+            throw new FileStoreException($"Error getting file stream for '{path}': {ex.Message}", ex);
         }
     }
 
@@ -262,12 +279,12 @@ public class AwsFileStore : IFileStore
                 var listObjects = await _amazonS3Client.ListObjectsV2Async(new ListObjectsV2Request
                 {
                     BucketName = _options.BucketName,
-                    Prefix = this.Combine(_basePrefix, path)
+                    Prefix = this.Combine(_basePrefix, path),
                 });
 
-                if (listObjects.S3Objects.Count > 0)
+                if (listObjects.S3Objects?.Count > 0)
                 {
-                    throw new FileStoreException($"Cannot create file '{path}' because it already exists.");
+                    throw new ExistsFileStoreException($"Cannot create file '{path}' because it already exists.");
                 }
             }
 
@@ -275,7 +292,7 @@ public class AwsFileStore : IFileStore
             {
                 BucketName = _options.BucketName,
                 Key = this.Combine(_basePrefix, path),
-                InputStream = inputStream
+                InputStream = inputStream,
             });
 
             if (!response.IsSuccessful())
@@ -296,7 +313,7 @@ public class AwsFileStore : IFileStore
         prefix = prefix.Trim('/') + '/';
         if (prefix.Length == 1)
         {
-            return Empty;
+            return string.Empty;
         }
 
         return prefix;

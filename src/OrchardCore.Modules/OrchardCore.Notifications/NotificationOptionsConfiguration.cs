@@ -3,15 +3,15 @@ using OrchardCore.ResourceManagement;
 
 namespace OrchardCore.Notifications;
 
-public class NotificationOptionsConfiguration : IConfigureOptions<ResourceManagementOptions>
+public sealed class NotificationOptionsConfiguration : IConfigureOptions<ResourceManagementOptions>
 {
-    private static readonly ResourceManifest _manifest;
+    private static readonly ResourceManifest s_manifest;
 
     static NotificationOptionsConfiguration()
     {
-        _manifest = new ResourceManifest();
+        s_manifest = new ResourceManifest();
 
-        _manifest
+        s_manifest
             .DefineScript("notification-manager")
             .SetUrl("~/OrchardCore.Notifications/Scripts/notification-manager.min.js", "~/OrchardCore.Notifications/Scripts/notification-manager.js")
             .SetVersion("1.0.0");
@@ -19,6 +19,6 @@ public class NotificationOptionsConfiguration : IConfigureOptions<ResourceManage
 
     public void Configure(ResourceManagementOptions options)
     {
-        options.ResourceManifests.Add(_manifest);
+        options.ResourceManifests.Add(s_manifest);
     }
 }

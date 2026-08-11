@@ -8,36 +8,36 @@ Shortcodes can be implemented by enabling the Shortcode Templates feature or thr
 
 ## Shortcode Templates
 
-Shortcode templates with [Liquid](../Liquid/) are created through the _Design -> Shortcodes_ menu.
+Shortcode templates with [Liquid](../Liquid/README.md) are created through the _Design -> Shortcodes_ menu.
 
 Shortcode templates are designed to be able to override a code based Shortcode of the same name.
 
-| Parameter | Description |
-| --------- | ----------- |
-| `Name` | The name of your Shortcode, without brackets. |
-| `Hint` | The hint to display for your Shortcode.
-| `Usage` | An html string to describe the usage and arguments for your Shortcode. |
-| `Categories` | The categories your Shortcode falls under. |
+| Parameter          | Description                                                                              |
+|--------------------|------------------------------------------------------------------------------------------|
+| `Name`             | The name of your Shortcode, without brackets.                                            |
+| `Hint`             | The hint to display for your Shortcode.                                                  |
+| `Usage`            | An HTML string to describe the usage and arguments for your Shortcode.                   |
+| `Categories`       | The categories your Shortcode falls under.                                               |
 | `Return Shortcode` | The Shortcode value to return from the Shortcode picker when selected. Defaults to Name. |
-| `Content` | The Liquid template for your Shortcode. |
+| `Content`          | The Liquid template for your Shortcode.                                                  |
 
 ### Template Arguments
 
-| Parameter | Description |
-| --------- | ----------- |
-| `Args` | The arguments provided the user, if any. |
-| `Content` | The inner content provided by the user, if any.
+| Parameter | Description                                                                          |
+|-----------|--------------------------------------------------------------------------------------|
+| `Args`    | The arguments provided the user, if any.                                             |
+| `Content` | The inner content provided by the user, if any.                                      |
 | `Context` | The context made available to the Shortcode from the caller, e.g. an `HtmlBodyPart`. |
 
 ### Example Shortcode Templates
 
 #### `[display_text]`
 
-| Parameter | Value |
-| --------- | ----------- |
-| `Name` | display_text |
-| `Hint` | Returns the display text of the content item. |
-| `Usage` | [display_text] |
+| Parameter | Value                                                   |
+|-----------|---------------------------------------------------------|
+| `Name`    | display_text                                            |
+| `Hint`    | Returns the display text of the content item.           |
+| `Usage`   | [display_text]                                          |
 | `Content` | `{{ Context.ContentItem.DisplayText }}`<br>`{{ More }}` |
 
 !!! note
@@ -45,20 +45,20 @@ Shortcode templates are designed to be able to override a code based Shortcode o
 
 #### `[site_name]`
 
-| Parameter | Value |
-| --------- | ----------- |
-| `Name` | site_name |
-| `Hint` | Returns the site name. |
-| `Usage` | [site_name] |
-| `Content` | `{{ Site.SiteName }}` |
+| Parameter | Value                  |
+|-----------|------------------------|
+| `Name`    | site_name              |
+| `Hint`    | Returns the site name. |
+| `Usage`   | [site_name]            |
+| `Content` | `{{ Site.SiteName }}`  |
 
 #### `[primary]`
 
-| Parameter | Value |
-| --------- | ----------- |
-| `Name` | primary |
-| `Hint` | Formats text in the themes primary color. |
-| `Usage` | [primary text]&lt;br&lt;[primary]text[/primary] |
+| Parameter | Value                                                                                                                                                                                                                              |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Name`    | primary                                                                                                                                                                                                                            |
+| `Hint`    | Formats text in the themes primary color.                                                                                                                                                                                          |
+| `Usage`   | [primary text]&lt;br&lt;[primary]text[/primary]                                                                                                                                                                                    |
 | `Content` | `{% capture output %}`<br>`{% if Args.Text != nil %}`<br>`<span class="text-primary">{{Args.Text}}</span>`<br>`{% else %}`<br>`<span class="text-primary">{{Content}}</span>`<br>`{% endif %}`<br>`{% endcapture %}`<br>`{{ output | sanitize | raw }}` |
 
 ## Shortcodes via code
@@ -67,11 +67,11 @@ Shortcode templates are designed to be able to override a code based Shortcode o
 
 Shortcodes can be registered in code via a `ShortcodeDelegate` using the `AddShortcode` extension method.
 
-| Parameter | Type | Description |
-| --------- | ---- |------------ |
-| `Name` | `string` | The name of the Shortcode. |
-| `Shortcode` | `ShortcodeDelegate` | The Shortcode Delegate. |
-| `Describe` | `Action<ShortcodeOption>` | Optionally a Description of the Shortcode. |
+| Parameter   | Type                      | Description                                |
+|-------------|---------------------------|--------------------------------------------|
+| `Name`      | `string`                  | The name of the Shortcode.                 |
+| `Shortcode` | `ShortcodeDelegate`       | The Shortcode Delegate.                    |
+| `Describe`  | `Action<ShortcodeOption>` | Optionally a Description of the Shortcode. |
 
 In this example, we register a `[bold]` Shortcode Delegate and describe the Shortcode.
 
@@ -83,7 +83,7 @@ services.AddShortcode("bold", (args, content, ctx) => {
         content = text;
     }
 
-    return new ValueTask<string>($"<b>{content}</b>");
+    return ValueTask.FromResult($"<b>{content}</b>");
 }, describe => {
     describe.DefaultValue = "[bold text-here]";
     describe.Hint = "Add bold formatting with a shortcode.";
@@ -120,11 +120,6 @@ services.AddShortcode<ImageShortcodeProvider>("image", describe => {
 });
 ```
 
-!!! note
-    When upgrading from version `1.0.0-rc2-13450` you may need to re-enable the Shortcodes feature, through _Configuration -> Features_
-
-    The Shortcode Templates feature is only available from the [Preview Feed](../../../getting-started/preview-package-source)
-
 ## Available Shortcodes
 
 ### `[image]`
@@ -142,7 +137,7 @@ This will render an image tag for the file `my-image.jpg` in the site's media fo
 The following parameters can be used:
 
 - **alt:** Adds alternative text to your image for the benefit of readers who can't see the image and also good for SEO.
-- **class:** Adds an html class attribute to the image tag for styling.
+- **class:** Adds an HTML class attribute to the image tag for styling.
 - **append_version:** Adds a cache busting query string parameter if set to `true`, i.e. `append_version="true"`.
 - **format:** Change the file format from the original file. Can be jpeg, png, gif or bmp.
 - **quality:** Sets the encoding quality to use for jpeg images. The higher the quality, the larger the file size will be. The value can be from 0 to 100 and defaults to 75.
@@ -230,7 +225,7 @@ Shortcodes can also be rendered via a liquid filter or html helper
 === "Razor"
 
     ``` html
-    @Html.Raw(@await Orchard.ShortcodesToHtmlAsync((string)Model.ContentItem.Content.RawHtml.Content.Html))
+    @Html.Raw(await Orchard.ShortcodesToHtmlAsync((string)Model.ContentItem.Content.RawHtml.Content.Html))
     ```
 
 ## Videos

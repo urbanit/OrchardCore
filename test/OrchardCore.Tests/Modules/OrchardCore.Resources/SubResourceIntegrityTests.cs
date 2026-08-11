@@ -7,7 +7,7 @@ namespace OrchardCore.Tests.Modules.OrchardCore.Resources;
 public class SubResourceIntegrityTests
 {
     [CIFact]
-    public async Task SavedSubResourceIntegritiesShouldMatchCurrentResources()
+    public static async Task SavedSubResourceIntegritiesShouldMatchCurrentResources()
     {
         // Arrange
         var resourceOptions = Options.Create(new ResourceOptions());
@@ -41,16 +41,16 @@ public class SubResourceIntegrityTests
                     {
                         var resourceIntegrity = await GetSubResourceIntegrityAsync(httpClient, resourceDefinition.UrlCdnDebug);
 
-                        Assert.True(resourceIntegrity.Equals(resourceDefinition.CdnDebugIntegrity),
-                            $"The {resourceType} {resourceDefinition.UrlCdnDebug} has invalid SRI hash, please use '{resourceIntegrity}' instead.");
+                        Assert.True(resourceIntegrity.Equals(resourceDefinition.CdnDebugIntegrity, StringComparison.Ordinal),
+                            $"The debug {resourceType} {resourceDefinition.UrlCdnDebug} has invalid SRI hash, please use '{resourceIntegrity}' instead.");
                     }
 
                     if (!string.IsNullOrEmpty(resourceDefinition.CdnIntegrity) && !string.IsNullOrEmpty(resourceDefinition.UrlCdn))
                     {
                         var resourceIntegrity = await GetSubResourceIntegrityAsync(httpClient, resourceDefinition.UrlCdn);
 
-                        Assert.True(resourceIntegrity.Equals(resourceDefinition.CdnIntegrity),
-                            $"The {resourceType} {resourceDefinition.UrlCdn} has invalid SRI hash, please use '{resourceIntegrity}' instead.");
+                        Assert.True(resourceIntegrity.Equals(resourceDefinition.CdnIntegrity, StringComparison.Ordinal),
+                            $"The production {resourceType} {resourceDefinition.UrlCdn} has invalid SRI hash, please use '{resourceIntegrity}' instead.");
                     }
                 }
             }

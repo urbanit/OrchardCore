@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,49 +5,57 @@ using Microsoft.Extensions.Localization;
 using OrchardCore.Environment.Shell.Scope;
 using OrchardCore.Scripting;
 
-namespace OrchardCore.Recipes
+namespace OrchardCore.Recipes;
+
+public sealed class VariablesMethodProvider : IGlobalMethodProvider
 {
-    public class VariablesMethodProvider : IGlobalMethodProvider
+    private readonly GlobalMethod _globalMethod;
+    private const string GlobalMethodName = "variables";
+
+    public VariablesMethodProvider(JsonObject variables, List<IGlobalMethodProvider> scopedMethodProviders)
     {
-        private readonly GlobalMethod _globalMethod;
-        private const string GlobalMethodName = "variables";
-
-        public VariablesMethodProvider(JsonObject variables, List<IGlobalMethodProvider> scopedMethodProviders)
+        _globalMethod = new GlobalMethod
         {
-            _globalMethod = new GlobalMethod
-            {
-                Name = GlobalMethodName,
-                Method = serviceProvider => (Func<string, object>)(name =>
-                {
-                    var variable = variables[name];
+            Name = GlobalMethodName,
+            Method = serviceProvider => (Func<string, object>)(name =>
+                GetVariableValueAsync(serviceProvider, variables, scopedMethodProviders, name).GetAwaiter().GetResult()),
+            AsyncMethod = serviceProvider => (Func<string, Task<object>>)(name =>
+                GetVariableValueAsync(serviceProvider, variables, scopedMethodProviders, name)),
+        };
+    }
 
-                    if (variable == null)
-                    {
-                        var S = serviceProvider.GetService<IStringLocalizer<VariablesMethodProvider>>();
+    public static IScriptingManager ScriptingManager => ShellScope.Services.GetRequiredService<IScriptingManager>();
 
-                        throw new ValidationException(S["The variable '{0}' was used in the recipe but not defined. Make sure you add the '{0}' variable in the '{1}' section of the recipe.", name, GlobalMethodName]);
-                    }
+    public IEnumerable<GlobalMethod> GetMethods()
+    {
+        yield return _globalMethod;
+    }
 
-                    var value = variable.Value<string>();
+    private static async Task<object> GetVariableValueAsync(
+        IServiceProvider serviceProvider,
+        JsonObject variables,
+        List<IGlobalMethodProvider> scopedMethodProviders,
+        string name)
+    {
+        var variable = variables[name];
 
-                    // Replace variable value while the result returns another script.
-                    while (value.StartsWith('[') && value.EndsWith(']'))
-                    {
-                        value = value.Trim('[', ']');
-                        value = (ScriptingManager.Evaluate(value, null, null, scopedMethodProviders) ?? "").ToString();
-                        variables[name] = value;
-                    }
+        if (variable == null)
+        {
+            var S = serviceProvider.GetService<IStringLocalizer<VariablesMethodProvider>>();
 
-                    return value;
-                }),
-            };
+            throw new ValidationException(S["The variable '{0}' was used in the recipe but not defined. Make sure you add the '{0}' variable in the '{1}' section of the recipe.", name, GlobalMethodName]);
         }
 
-        public static IScriptingManager ScriptingManager => ShellScope.Services.GetRequiredService<IScriptingManager>();
+        var value = variable.Value<string>();
 
-        public IEnumerable<GlobalMethod> GetMethods()
+        // Replace variable value while the result returns another script.
+        while (value.StartsWith('[') && value.EndsWith(']'))
         {
-            yield return _globalMethod;
+            value = value.Trim('[', ']');
+            value = (await ScriptingManager.EvaluateAsync(value, null, null, scopedMethodProviders) ?? "").ToString();
+            variables[name] = value;
         }
+
+        return value;
     }
 }

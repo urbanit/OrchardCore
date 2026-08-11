@@ -1,9 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using OrchardCore.Environment.Shell.Builders;
 
-namespace OrchardCore.Email.Core.Services;
+namespace OrchardCore.Email.Services;
 
 public class DefaultEmailProviderResolver : IEmailProviderResolver
 {

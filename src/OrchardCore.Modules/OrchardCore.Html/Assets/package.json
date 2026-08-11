@@ -1,0 +1,7 @@
+{
+  "name": "@orchardcore/html",
+  "version": "1.0.0",
+  "dependencies": {
+    "orchardcore-media-gallery": "workspace:*"
+  }
+}

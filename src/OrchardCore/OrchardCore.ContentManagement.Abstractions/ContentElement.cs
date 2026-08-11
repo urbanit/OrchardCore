@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json.Dynamic;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -13,12 +12,13 @@ public class ContentElement : IContent
 {
     private Dictionary<string, ContentElement> _elements;
     private JsonDynamicObject _dynamicObject;
+    private JsonObject _data;
 
     protected ContentElement() : this([])
     {
     }
 
-    protected ContentElement(JsonObject data) => Data = data;
+    protected ContentElement(JsonObject data) => _data = data;
 
     [JsonIgnore]
     protected internal Dictionary<string, ContentElement> Elements => _elements ??= [];
@@ -27,7 +27,16 @@ public class ContentElement : IContent
     public dynamic Content => _dynamicObject ??= Data;
 
     [JsonIgnore]
-    internal JsonObject Data { get; set; }
+    internal JsonObject Data
+    {
+        get => _data;
+        set
+        {
+            _dynamicObject = null;
+            _elements = null;
+            _data = value;
+        }
+    }
 
     [JsonIgnore]
     public ContentItem ContentItem { get; set; }

@@ -5,7 +5,7 @@ It also explains the fundamental theming concepts, namely __Shapes__, __Alternat
 
 ## Goals
 
-Let's assume we want to add a portfolio section to our Blog where we could list all the projects we are working on, and be able to manage these projects individually, as opposed to having an static page where we would have to copy-paste the HTML for each project.
+Let's assume we want to add a portfolio section to our Blog where we could list all the projects we are working on, and be able to manage these projects individually, as opposed to having a static page where we would have to copy-paste the HTML for each project.
 
 The portfolio should have its own URL like `/portfolio`, and should display the projects in a predefined order.
 
@@ -34,7 +34,7 @@ This article will explain how to do it with a `BagPart` as it will provide the b
 - a `Text` field to store the link to the project;
 - a `Markdown` part to provide a description in markdown format.
 
-In the admin, select __Content Definition__ then __Content Types__ and create a new type named `Project`. Click __Create__.
+In the admin, select __Design__ then __Content Definition__ then __Content Types__ and create a new type named `Project`. Click __Create__.
 
 Select __Title__ and __Markdown__ for the parts we can add already, then click __Save__.
 
@@ -48,7 +48,7 @@ Take the time to drag and drop the __Title__ part at the top of the list such th
 
 At that point you could already create all the Project content items you want very easily. However we need to create a `Portfolio` type to contain and organize them.
 
-In the admin, select __Content Definition__ then __Content Types__ and create a new type named `Portfolio`. Click __Create__.
+In the admin, select __Design__ then __Content Definition__ then __Content Types__ and create a new type named `Portfolio`. Click __Create__.
 
 Select __Title__, __Autoroute__ and __Bag__, then click __Save__.
 
@@ -56,7 +56,7 @@ Now we can configure the `Portfolio` content type to only accept `Project` conte
 
 Click __Edit__ for the __Bag__ part. Check __Project__ and click __Save__.
 
-Click __Edit__ for the __Autoroute__ part. Enter `{{ ContentItem | display_text | slugify }}` and check __Allow custom path__. Click __Save__. This will generate a customizable url or used what the user defines.
+Click __Edit__ for the __Autoroute__ part. Enter `{{ ContentItem | display_text | slugify }}` and check __Allow custom path__. Click __Save__. This will generate a customizable URL or use the one the user defines.
 
 Take the time to drag and drop the __Title__ part at the top of the list such that it will appear first in the editor. Then click __Save__.
 
@@ -68,7 +68,7 @@ Click on __New__, then __Portfolio__.
 
 Give it a title like `My Project`.
 
-In __Permalink__ enter `portfolio`. This will be the url to display this content item.
+In __Permalink__ enter `portfolio`. This will be the URL to display this content item.
 
 As you click on __Add Item__ you'll notice that only __Project__ is available as configured in the `Bag` part for `Portfolio`.
 
@@ -84,9 +84,9 @@ At that point it already looks like something that could be shipped, and all the
 
 ### Loading the portfolio from the database
 
-When the url `/portfolio` is requested, a custom action is called to render the content item that is associated with this URL.  
-The URL got associated with the portfolio thanks to the __Autoroute__ part that provides this mechanism.  
-The autoroute registers a custom URL and stores the associated content item id.  
+When the URL `/portfolio` is requested, a custom action is called to render the content item that is associated with this URL.
+The URL is associated with the portfolio thanks to the __Autoroute__ part that provides this mechanism.
+The autoroute registers a custom URL and stores the associated content item ID.
 At this point the action will issue a database request to load the portfolio in its entirety, including the projects, as this is how it was modeled with the __Bag__ part.
 
 ### How a Content Item is displayed
@@ -100,14 +100,14 @@ The __Bag__ part will invoke all available display drivers recursively, to rende
 
 Each of these drivers return one or more shapes that are added to named zones (or sections) of a global __Shape__ called the `Content` shape.
 
-For instance the `TitleDisplayDriver` class will return a shape of type `TitlePart` in the `Header` zone of the main shape at position `5`. See [TitlePartDisplayDriver](../../../../OrchardCore.Modules/OrchardCore.Title/Drivers/TitlePartDisplayDriver.cs#L14-L20)
+For instance the `TitleDisplayDriver` class will return a shape of type `TitlePart` in the `Header` zone of the main shape at position `5`. See [`TitlePartDisplayDriver`](https://github.com/OrchardCMS/OrchardCore/blob/main/src/OrchardCore.Modules/OrchardCore.Title/Drivers/TitlePartDisplayDriver.cs)
 
-Then the `BagPart` shape is added in the `Content` zone of the main shape at the position `5`. See [BagPartDisplayDriver](../../../../OrchardCore.Modules/OrchardCore.Flows/Drivers/BagPartDisplayDriver.cs#L39-L45).
+Then the `BagPart` shape is added in the `Content` zone of the main shape at the position `5`. See [`BagPartDisplayDriver`](https://github.com/OrchardCMS/OrchardCore/blob/main/src/OrchardCore.Modules/OrchardCore.Flows/Drivers/BagPartDisplayDriver.cs).
 
 Once all the drivers for all the parts and all the fields have returned their shapes to specific zones of the main `Content` shape, Orchard will look for a matching template.
 Template matching is done dynamically, and if no specific ones are created for a Content Type, then the file `Content.cshtml` (or `Content.liquid`) is used.  
 The default template will go over all the zones it knows about and render the shapes that are inside each of them.  
-See [Header](../../../../OrchardCore.Modules/OrchardCore.Contents/Views/Content.cshtml#L17) where the `Header` zone shapes are rendered (the `TitlePart` shape) and also [Content](../../../../OrchardCore.Modules/OrchardCore.Contents/Views/Content.cshtml#L24) where the `Content` zone shapes are rendered (`BagPart` and `TextField` shapes).
+See [the source file](https://github.com/OrchardCMS/OrchardCore/blob/main/src/OrchardCore.Modules/OrchardCore.Contents/Views/Content.cshtml) where the `Header` zone shapes are rendered (the `TitlePart` shape) and also `Content` where the `Content` zone shapes are rendered (`BagPart` and `TextField` shapes).
 
 ## Customizing templates
 

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -7,47 +7,49 @@ using OrchardCore.Google.Analytics.Settings;
 using OrchardCore.ResourceManagement;
 using OrchardCore.Settings;
 
-namespace OrchardCore.Google.Analytics
+namespace OrchardCore.Google.Analytics;
+
+public sealed class GoogleAnalyticsFilter : IAsyncResultFilter
 {
-    public class GoogleAnalyticsFilter : IAsyncResultFilter
+    private readonly IResourceManager _resourceManager;
+    private readonly ISiteService _siteService;
+    private readonly JavaScriptEncoder _jsEncoder;
+    private readonly UrlEncoder _urlEncoder;
+
+    private static readonly HtmlString s_preamble = new($"<!-- Global site tag (gtag.js) - Google Analytics -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=");
+    private static readonly HtmlString s_middle = new HtmlString($"\"></script>\n<script>window.dataLayer = window.dataLayer || [];function gtag() {{ dataLayer.push(arguments); }}gtag('js', new Date());gtag('config', '");
+    private static readonly HtmlString s_end = new HtmlString($"')</script>\n<!-- End Global site tag (gtag.js) - Google Analytics -->");
+
+    public GoogleAnalyticsFilter(
+        IResourceManager resourceManager,
+        ISiteService siteService,
+        JavaScriptEncoder jsEncoder,
+        UrlEncoder urlEncoder)
     {
-        private readonly IResourceManager _resourceManager;
-        private readonly ISiteService _siteService;
+        _resourceManager = resourceManager;
+        _siteService = siteService;
+        _jsEncoder = jsEncoder;
+        _urlEncoder = urlEncoder;
+    }
 
-        private HtmlString _scriptsCache;
-
-        public GoogleAnalyticsFilter(
-            IResourceManager resourceManager,
-            ISiteService siteService)
+    public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+    {
+        // Should only run on the front-end for a full view
+        if (context.IsViewOrPageResult() && !AdminAttribute.IsApplied(context.HttpContext))
         {
-            _resourceManager = resourceManager;
-            _siteService = siteService;
-        }
+            var canTrack = context.HttpContext.Features.Get<ITrackingConsentFeature>()?.CanTrack ?? true;
 
-        public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
-        {
-            // Should only run on the front-end for a full view
-            if (context.IsViewOrPageResult() && !AdminAttribute.IsApplied(context.HttpContext))
+            if (canTrack)
             {
-                var canTrack = context.HttpContext.Features.Get<ITrackingConsentFeature>()?.CanTrack ?? true;
+                var settings = await _siteService.GetSettingsAsync<GoogleAnalyticsSettings>();
 
-                if (_scriptsCache == null && canTrack)
+                if (!string.IsNullOrEmpty(settings?.TrackingID))
                 {
-                    var settings = (await _siteService.GetSiteSettingsAsync()).As<GoogleAnalyticsSettings>();
-
-                    if (!string.IsNullOrWhiteSpace(settings?.TrackingID))
-                    {
-                        _scriptsCache = new HtmlString($"<!-- Global site tag (gtag.js) - Google Analytics -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id={settings.TrackingID}\"></script>\n<script>window.dataLayer = window.dataLayer || [];function gtag() {{ dataLayer.push(arguments); }}gtag('js', new Date());gtag('config', '{settings.TrackingID}')</script>\n<!-- End Global site tag (gtag.js) - Google Analytics -->");
-                    }
-                }
-
-                if (_scriptsCache != null)
-                {
-                    _resourceManager.RegisterHeadScript(_scriptsCache);
+                    _resourceManager.RegisterHeadScript(new HtmlContentBuilder([s_preamble, _urlEncoder.Encode(settings.TrackingID), s_middle, _jsEncoder.Encode(settings.TrackingID), s_end]));
                 }
             }
-
-            await next.Invoke();
         }
+
+        await next.Invoke();
     }
 }

@@ -1,9 +1,4 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -20,14 +15,14 @@ public static class ShellPipelineExtensions
 {
     private const string EndpointRouteBuilder = "__EndpointRouteBuilder";
 
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new();
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> s_semaphores = new();
 
     /// <summary>
     /// Builds the tenant pipeline atomically.
     /// </summary>
     public static async Task BuildPipelineAsync(this ShellContext context)
     {
-        var semaphore = _semaphores.GetOrAdd(context.Settings.Name, _ => new SemaphoreSlim(1));
+        var semaphore = s_semaphores.GetOrAdd(context.Settings.Name, _ => new SemaphoreSlim(1));
 
         await semaphore.WaitAsync();
         try
@@ -64,7 +59,7 @@ public static class ShellPipelineExtensions
 
         var shellPipeline = new ShellRequestPipeline
         {
-            Next = builder.Build()
+            Next = builder.Build(),
         };
 
         return shellPipeline;
@@ -73,7 +68,7 @@ public static class ShellPipelineExtensions
     /// <summary>
     /// Configures the tenant pipeline.
     /// </summary>
-    private static async ValueTask ConfigurePipelineAsync(IApplicationBuilder builder)
+    private static async ValueTask ConfigurePipelineAsync(ApplicationBuilder builder)
     {
         // 'IStartup' instances are ordered by module dependencies with a 'ConfigureOrder' of 0 by default.
         // 'OrderBy' performs a stable sort, so the order is preserved among equal 'ConfigureOrder' values.

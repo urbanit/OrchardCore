@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OrchardCore.ArchiveLater.Indexes;
@@ -18,7 +14,7 @@ namespace OrchardCore.ArchiveLater.Services;
     Title = "Content Items Archiver",
     Schedule = "* * * * *",
     Description = "Archives content items when their scheduled archive date time arrives.")]
-public class ScheduledArchivingBackgroundTask : IBackgroundTask
+public sealed class ScheduledArchivingBackgroundTask : IBackgroundTask
 {
     private readonly ILogger _logger;
     private readonly IClock _clock;
@@ -34,7 +30,7 @@ public class ScheduledArchivingBackgroundTask : IBackgroundTask
         var itemsToArchive = await serviceProvider
             .GetRequiredService<ISession>()
             .QueryIndex<ArchiveLaterPartIndex>(index => index.Latest && index.Published && index.ScheduledArchiveDateTimeUtc < _clock.UtcNow)
-            .ListAsync();
+            .ListAsync(cancellationToken);
 
         if (!itemsToArchive.Any())
         {
@@ -47,14 +43,16 @@ public class ScheduledArchivingBackgroundTask : IBackgroundTask
         {
             var contentItem = await contentManager.GetAsync(item.ContentItemId);
 
-            var part = contentItem.As<ArchiveLaterPart>();
-            if (part != null)
+            if (contentItem.TryGet<ArchiveLaterPart>(out var part))
             {
                 part.ScheduledArchiveUtc = null;
                 part.Apply();
             }
 
-            _logger.LogDebug("Archiving scheduled content item {ContentItemId}.", contentItem.ContentItemId);
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                _logger.LogDebug("Archiving scheduled content item {ContentItemId}.", contentItem.ContentItemId);
+            }
 
             await contentManager.UnpublishAsync(contentItem);
         }

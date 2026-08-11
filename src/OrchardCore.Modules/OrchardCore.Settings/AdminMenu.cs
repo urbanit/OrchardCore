@@ -1,33 +1,36 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Localization;
 using OrchardCore.Navigation;
 using OrchardCore.Settings.Drivers;
 
-namespace OrchardCore.Settings
+namespace OrchardCore.Settings;
+
+public sealed class AdminMenu : AdminNavigationProvider
 {
-    public class AdminMenu : INavigationProvider
+    private static readonly RouteValueDictionary s_generalRouteValues = new()
     {
-        private static readonly RouteValueDictionary _routeValues = new()
+        { "area", "OrchardCore.Settings" },
+        { "groupId", DefaultSiteSettingsDisplayDriver.GroupId },
+    };
+
+    private static readonly RouteValueDictionary s_debuggingRouteValues = new()
+    {
+        { "area", "OrchardCore.Settings" },
+        { "groupId", DebugSettingsDisplayDriver.GroupId },
+    };
+
+    internal readonly IStringLocalizer S;
+
+    public AdminMenu(IStringLocalizer<AdminMenu> stringLocalizer)
+    {
+        S = stringLocalizer;
+    }
+
+    protected override ValueTask BuildAsync(NavigationBuilder builder)
+    {
+
+        if (NavigationHelper.UseLegacyFormat())
         {
-            { "area", "OrchardCore.Settings" },
-            { "groupId", DefaultSiteSettingsDisplayDriver.GroupId },
-        };
-
-        protected readonly IStringLocalizer S;
-
-        public AdminMenu(IStringLocalizer<AdminMenu> localizer)
-        {
-            S = localizer;
-        }
-
-        public Task BuildNavigationAsync(string name, NavigationBuilder builder)
-        {
-            if (!NavigationHelper.IsAdminMenu(name))
-            {
-                return Task.CompletedTask;
-            }
-
             builder
                 .Add(S["Configuration"], NavigationConstants.AdminMenuConfigurationPosition, configuration => configuration
                     .AddClass("menu-configuration")
@@ -36,14 +39,47 @@ namespace OrchardCore.Settings
                         .Add(S["General"], "1", entry => entry
                             .AddClass("general")
                             .Id("general")
-                            .Action("Index", "Admin", _routeValues)
-                            .Permission(Permissions.ManageGroupSettings)
+                            .Action("Index", "Admin", s_generalRouteValues)
+                            .Permission(SettingsPermissions.ManageGeneralSettings)
+                            .LocalNav()
+                        )
+                        .Add(S["Debugging"], "2", entry => entry
+                            .AddClass("debugging")
+                            .Id("debugging")
+                            .Action("Index", "Admin", s_debuggingRouteValues)
+                            .Permission(SettingsPermissions.ManageDebuggingSettings)
                             .LocalNav()
                         ),
                     priority: 1)
                 );
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
+
+        builder
+            .Add(S["Tools"], "after.50", tools => tools
+                .Id("tools")
+                .AddClass("tools")
+            , priority: 1)
+            .Add(S["Settings"], "after.100", settings => settings
+                .Id("settings")
+                .AddClass("settings")
+                .Add(S["General"], "before", general => general
+                    .AddClass("general")
+                    .Id("general")
+                    .Action("Index", "Admin", s_generalRouteValues)
+                    .Permission(SettingsPermissions.ManageGeneralSettings)
+                    .LocalNav()
+                )
+                .Add(S["Debugging"], "after", debugging => debugging
+                    .AddClass("debugging")
+                    .Id("debugging")
+                    .Action("Index", "Admin", s_debuggingRouteValues)
+                    .Permission(SettingsPermissions.ManageDebuggingSettings)
+                    .LocalNav()
+                )
+            , priority: 1);
+
+        return ValueTask.CompletedTask;
     }
 }

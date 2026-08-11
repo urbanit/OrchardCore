@@ -1,12 +1,11 @@
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 
 namespace OrchardCore.DisplayManagement.Html;
 
 public static class HtmlContentBuilderExtensions
 {
-    private static readonly HtmlString _whitespace = new(" ");
-    private static readonly HtmlString _hyphen = new("-");
+    private static readonly HtmlString s_whitespace = new(" ");
+    private static readonly HtmlString s_hyphen = new("-");
 
     public static HtmlContentBuilder AppendSeparatedValue(this HtmlContentBuilder builder, string value)
     {
@@ -36,14 +35,14 @@ public static class HtmlContentBuilderExtensions
 
     public static HtmlContentBuilder AppendWhitespace(this HtmlContentBuilder builder)
     {
-        builder.AppendHtml(_whitespace);
+        builder.AppendHtml(s_whitespace);
 
         return builder;
     }
 
     public static HtmlContentBuilder AppendHyphen(this HtmlContentBuilder builder)
     {
-        builder.AppendHtml(_hyphen);
+        builder.AppendHtml(s_hyphen);
 
         return builder;
     }

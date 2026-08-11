@@ -1,30 +1,27 @@
-using System;
 using System.Globalization;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using GraphQL;
 using OrchardCore.Demo.Models;
 using OrchardCore.Entities;
 using OrchardCore.Users;
 using OrchardCore.Users.Models;
 using OrchardCore.Users.Services;
 
-namespace OrchardCore.Demo.Services
+namespace OrchardCore.Demo.Services;
+
+internal sealed class UserProfileClaimsProvider : IUserClaimsProvider
 {
-    internal class UserProfileClaimsProvider : IUserClaimsProvider
+    public Task GenerateAsync(IUser user, ClaimsIdentity claims)
     {
-        public Task GenerateAsync(IUser user, ClaimsIdentity claims)
+        ArgumentNullException.ThrowIfNull(user);
+
+        ArgumentNullException.ThrowIfNull(claims);
+
+        claims.AddClaim(new Claim("preferred_username", user.UserName));
+
+        if (user is User u && u.TryGet<UserProfile>(out var profile))
         {
-            ArgumentNullException.ThrowIfNull(user);
-
-            ArgumentNullException.ThrowIfNull(claims);
-
-            var u = user as User;
-            var profile = u.As<UserProfile>();
-
-            claims.AddClaim(new Claim("preferred_username", user.UserName));
-
             var name = "";
+
             if (!string.IsNullOrEmpty(profile.FirstName))
             {
                 claims.AddClaim(new Claim("given_name", profile.FirstName));
@@ -46,15 +43,15 @@ namespace OrchardCore.Demo.Services
             {
                 claims.AddClaim(new Claim("updated_at", ConvertToUnixTimestamp(profile.UpdatedAt).ToString(CultureInfo.InvariantCulture)));
             }
-
-            return Task.FromResult(claims);
         }
 
-        public static double ConvertToUnixTimestamp(DateTime date)
-        {
-            var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            var diff = date.ToUniversalTime() - origin;
-            return Math.Floor(diff.TotalSeconds);
-        }
+        return Task.FromResult(claims);
+    }
+
+    public static double ConvertToUnixTimestamp(DateTime date)
+    {
+        var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        var diff = date.ToUniversalTime() - origin;
+        return Math.Floor(diff.TotalSeconds);
     }
 }

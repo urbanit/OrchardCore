@@ -1,8 +1,11 @@
 @using OrchardCore.Forms.Models
 @model ShapeViewModel<InputPart>
 @{
-    var formElementPart = Model.Value.ContentItem.As<FormElementPart>();
-    var formInputElementPart = Model.Value.ContentItem.As<FormInputElementPart>();
+    if (!Model.Value.ContentItem.TryGet<FormElementPart>(out var formElementPart) ||
+        !Model.Value.ContentItem.TryGet<FormInputElementPart>(out var formInputElementPart))
+    {
+        return;
+    }
     var elementId = formElementPart.Id;
     var fieldName = formInputElementPart.Name;
     var fieldId = !string.IsNullOrEmpty(elementId) ? elementId : !string.IsNullOrEmpty(fieldName) ? Html.GenerateIdFromName(fieldName) : default(string);
@@ -14,7 +17,13 @@
     {
         if (Model.Value.Type == "checkbox")
         {
-            isChecked = fieldEntry.AttemptedValue == fieldValue;
+            // Unlike other input controls, a checkbox's value is only included in the
+            // submitted data if the checkbox is currently checked. If it is, then the
+            // value of the checkbox's value attribute is reported as the input's value, 
+            // or 'on' if no value is set.
+            // c.f. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#additional_attributes
+
+            isChecked = fieldEntry.AttemptedValue == (fieldValue ?? "on");
         }
         else
         {

@@ -1,9 +1,10 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Options;
 using OrchardCore.ContentManagement;
+using OrchardCore.Json;
 using OrchardCore.Modules;
 
 namespace OrchardCore.Contents.Endpoints.Api;
@@ -12,7 +13,8 @@ public static class GetEndpoint
 {
     public static IEndpointRouteBuilder AddGetContentEndpoint(this IEndpointRouteBuilder builder)
     {
-        builder.MapGet("api/content/{contentItemId}", ActionAsync)
+        builder.MapGet("api/content/{contentItemId}", HandleAsync)
+            .WithName("ApiGetContentItem")
             .AllowAnonymous()
             .DisableAntiforgery();
 
@@ -20,13 +22,14 @@ public static class GetEndpoint
     }
 
     [Authorize(AuthenticationSchemes = "Api")]
-    private static async Task<IResult> ActionAsync(
+    private static async Task<IResult> HandleAsync(
         string contentItemId,
         IContentManager contentManager,
         IAuthorizationService authorizationService,
-        HttpContext httpContext)
+        HttpContext httpContext,
+        IOptions<DocumentJsonSerializerOptions> options)
     {
-        if (!await authorizationService.AuthorizeAsync(httpContext.User, Permissions.AccessContentApi))
+        if (!await authorizationService.AuthorizeAsync(httpContext.User, CommonPermissions.AccessContentApi))
         {
             return httpContext.ChallengeOrForbid("Api");
         }
@@ -43,6 +46,6 @@ public static class GetEndpoint
             return httpContext.ChallengeOrForbid("Api");
         }
 
-        return TypedResults.Ok(contentItem);
+        return Results.Json(contentItem, options.Value.SerializerOptions);
     }
 }

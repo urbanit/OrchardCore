@@ -1,10 +1,9 @@
-using System.Threading.Tasks;
 using OrchardCore.DisplayManagement.Handlers;
 
 namespace OrchardCore.DisplayManagement.Descriptors;
 
 /// <summary>
-/// Represents a marker interface for classes that provide Shape placement informations.
+/// Defines a service capable of providing a contextualized <see cref="IPlacementInfoResolver"/> for a given shape building context.
 /// </summary>
 public interface IShapePlacementProvider
 {

@@ -1,45 +1,42 @@
-using System;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OrchardCore.Mvc
+namespace OrchardCore.Mvc;
+
+/// <summary>
+/// Shares across tenants the same <see cref="IViewCompiler"/>.
+/// </summary>
+public class SharedViewCompilerProvider : IViewCompilerProvider
 {
-    /// <summary>
-    /// Shares across tenants the same <see cref="IViewCompiler"/>.
-    /// </summary>
-    public class SharedViewCompilerProvider : IViewCompilerProvider
+    private readonly object _synLock = new();
+    private static IViewCompiler s_compiler;
+    private readonly IServiceProvider _services;
+
+    public SharedViewCompilerProvider(IServiceProvider services)
     {
-        private readonly object _synLock = new();
-        private static IViewCompiler _compiler;
-        private readonly IServiceProvider _services;
+        _services = services;
+    }
 
-        public SharedViewCompilerProvider(IServiceProvider services)
+    public IViewCompiler GetCompiler()
+    {
+        if (s_compiler is not null)
         {
-            _services = services;
+            return s_compiler;
         }
 
-        public IViewCompiler GetCompiler()
+        lock (_synLock)
         {
-            if (_compiler is not null)
+            if (s_compiler is not null)
             {
-                return _compiler;
+                return s_compiler;
             }
 
-            lock (_synLock)
-            {
-                if (_compiler is not null)
-                {
-                    return _compiler;
-                }
-
-                _compiler = _services
-                    .GetServices<IViewCompilerProvider>()
-                    .FirstOrDefault()
-                    .GetCompiler();
-            }
-
-            return _compiler;
+            s_compiler = _services
+                .GetServices<IViewCompilerProvider>()
+                .FirstOrDefault()
+                ?.GetCompiler();
         }
+
+        return s_compiler;
     }
 }

@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using OrchardCore.DisplayManagement.Descriptors;
 
 namespace OrchardCore.DisplayManagement.Zones;
@@ -12,7 +11,9 @@ public class ZoneShapeAlternates : ShapeTableProvider
             {
                 if (context.Shape.TryGetProperty("ZoneName", out string zoneName))
                 {
-                    context.Shape.Metadata.Alternates.Add("Zone__" + zoneName);
+                    // Get cached alternate and add it efficiently
+                    var cachedAlternates = ZoneAlternatesFactory.GetAlternates(zoneName);
+                    context.Shape.Metadata.Alternates.AddRange(cachedAlternates);
                 }
             });
 

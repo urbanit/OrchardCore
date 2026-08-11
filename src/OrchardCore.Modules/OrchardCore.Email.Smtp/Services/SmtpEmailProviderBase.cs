@@ -1,16 +1,12 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
 using MailKit.Net.Proxy;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using MimeKit;
+using OrchardCore.Infrastructure;
 
 namespace OrchardCore.Email.Smtp.Services;
 
@@ -38,27 +34,40 @@ public abstract class SmtpEmailProviderBase : IEmailProvider
 
     public abstract LocalizedString DisplayName { get; }
 
-    public virtual async Task<EmailResult> SendAsync(MailMessage message)
+    /// <summary>
+    /// Sends the specified email message by using the configured SMTP delivery method.
+    /// </summary>
+    /// <param name="message">The email message to send.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A <see cref="Result"/> describing whether the email was sent successfully.</returns>
+    public virtual async Task<Result> SendAsync(MailMessage message, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
 
         if (!_providerOptions.IsEnabled)
         {
-            return EmailResult.FailedResult(S["The SMTP Email Provider is disabled."]);
+            return Result.Failed(S["The SMTP Email Provider is disabled."]);
         }
 
         var senderAddress = string.IsNullOrWhiteSpace(message.From)
             ? _providerOptions.DefaultSender
             : message.From;
 
-        _logger.LogDebug("Attempting to send email to {Email}.", message.To);
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Attempting to send email to {Email}.", message.To);
+        }
 
         // Set the MailMessage.From, to avoid the confusion between DefaultSender (Author) and submitter (Sender).
         if (!string.IsNullOrWhiteSpace(senderAddress))
         {
             if (!_emailAddressValidator.Validate(senderAddress))
             {
-                return EmailResult.FailedResult(nameof(message.From), S["Invalid email address for the sender: '{0}'.", senderAddress]);
+                return Result.Failed(new ResultError
+                {
+                    Key = nameof(message.From),
+                    Message = S["Invalid email address for the sender: '{0}'.", senderAddress],
+                });
             }
 
             message.From = senderAddress;
@@ -72,21 +81,21 @@ public abstract class SmtpEmailProviderBase : IEmailProvider
             {
                 var response = await SendOnlineMessageAsync(mimeMessage);
 
-                return EmailResult.GetSuccessResult(response);
+                return Result.Success(response);
             }
 
             if (_providerOptions.DeliveryMethod == SmtpDeliveryMethod.SpecifiedPickupDirectory)
             {
                 await SendOfflineMessageAsync(mimeMessage, _providerOptions.PickupDirectoryLocation);
 
-                return EmailResult.SuccessResult;
+                return Result.Success();
             }
 
             throw new NotSupportedException($"The '{_providerOptions.DeliveryMethod}' delivery method is not supported.");
         }
         catch (Exception ex)
         {
-            return EmailResult.FailedResult([S["An error occurred while sending an email: '{0}'", ex.Message]]);
+            return Result.Failed(S["An error occurred while sending an email: '{0}'", ex.Message]);
         }
     }
 
@@ -113,16 +122,11 @@ public abstract class SmtpEmailProviderBase : IEmailProvider
 
         mimeMessage.Subject = message.Subject;
 
-        var body = new BodyBuilder();
-
-        if (message.IsHtmlBody)
+        var body = new BodyBuilder
         {
-            body.HtmlBody = message.Body;
-        }
-        else
-        {
-            body.TextBody = message.Body;
-        }
+            TextBody = message.TextBody,
+            HtmlBody = message.HtmlBody,
+        };
 
         foreach (var attachment in message.Attachments)
         {
@@ -186,6 +190,8 @@ public abstract class SmtpEmailProviderBase : IEmailProvider
 
     private static Task SendOfflineMessageAsync(MimeMessage message, string pickupDirectory)
     {
+        Directory.CreateDirectory(pickupDirectory);
+
         var mailPath = Path.Combine(pickupDirectory, Guid.NewGuid().ToString() + EmailExtension);
 
         return message.WriteToAsync(mailPath, CancellationToken.None);

@@ -12,10 +12,12 @@
 
     @if (Model.Editor.Actions != null)
     {
-        <div class="mb-3">
-            @await DisplayAsync(Model.Editor.Actions)
+        <div class="ocat-wrapper">
+            <div class="ocat-end-offset">
+                @await DisplayAsync(Model.Editor.Actions)
+            </div>
         </div>
     }
 
-    <input type="hidden" asp-for="Name" />
+    <input type="hidden" asp-for="QueryId" />
 </form>

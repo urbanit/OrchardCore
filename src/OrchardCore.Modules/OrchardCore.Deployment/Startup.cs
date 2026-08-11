@@ -1,45 +1,54 @@
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OrchardCore.Data;
 using OrchardCore.Data.Migration;
 using OrchardCore.Deployment.Core;
 using OrchardCore.Deployment.Deployment;
+using OrchardCore.Deployment.Drivers;
 using OrchardCore.Deployment.Indexes;
 using OrchardCore.Deployment.Recipes;
 using OrchardCore.Deployment.Steps;
+using OrchardCore.DisplayManagement.Handlers;
+using OrchardCore.FileStorage;
 using OrchardCore.Modules;
 using OrchardCore.Navigation;
 using OrchardCore.Recipes;
 using OrchardCore.Security.Permissions;
 
-namespace OrchardCore.Deployment
+namespace OrchardCore.Deployment;
+
+public sealed class Startup : StartupBase
 {
-    public class Startup : StartupBase
+    public override void ConfigureServices(IServiceCollection services)
     {
-        public override void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDeploymentServices();
+        services.TryAddTransient<FileCreationService>();
+        services.AddDeploymentServices();
 
-            services.AddScoped<INavigationProvider, AdminMenu>();
-            services.AddScoped<IPermissionProvider, Permissions>();
+        services.AddNavigationProvider<AdminMenu>();
+        services.AddPermissionProvider<Permissions>();
 
-            services.AddSingleton<IDeploymentTargetProvider, FileDownloadDeploymentTargetProvider>();
+        services.AddSingleton<IDeploymentTargetProvider, FileDownloadDeploymentTargetProvider>();
 
-            // Custom File deployment step
-            services.AddDeployment<CustomFileDeploymentSource, CustomFileDeploymentStep, CustomFileDeploymentStepDriver>();
+        // Register the fallback type for unknown deployment steps (e.g., when a feature is disabled).
+        services.AddJsonDerivedTypeFallback<DeploymentStep, UnknownDeploymentStep>();
+        services.AddDisplayDriver<DeploymentStep, UnknownDeploymentStepDriver>();
 
-            // Recipe File deployment step
-            services.AddDeploymentWithoutSource<RecipeFileDeploymentStep, RecipeFileDeploymentStepDriver>();
+        // Custom File deployment step
+        services.AddDeployment<CustomFileDeploymentSource, CustomFileDeploymentStep, CustomFileDeploymentStepDriver>();
 
-            services.AddIndexProvider<DeploymentPlanIndexProvider>();
-            services.AddDataMigration<Migrations>();
+        // Recipe File deployment step
+        services.AddDeploymentWithoutSource<RecipeFileDeploymentStep, RecipeFileDeploymentStepDriver>();
 
-            services.AddScoped<IDeploymentPlanService, DeploymentPlanService>();
+        services.AddIndexProvider<DeploymentPlanIndexProvider>();
+        services.AddDataMigration<Migrations>();
 
-            services.AddRecipeExecutionStep<DeploymentPlansRecipeStep>();
+        services.AddScoped<IDeploymentPlanService, DeploymentPlanService>();
 
-            services.AddDeployment<DeploymentPlanDeploymentSource, DeploymentPlanDeploymentStep, DeploymentPlanDeploymentStepDriver>();
+        services.AddRecipeExecutionStep<DeploymentPlansRecipeStep>();
 
-            services.AddDeployment<JsonRecipeDeploymentSource, JsonRecipeDeploymentStep, JsonRecipeDeploymentStepDriver>();
-        }
+        services.AddDeployment<DeploymentPlanDeploymentSource, DeploymentPlanDeploymentStep, DeploymentPlanDeploymentStepDriver>();
+
+        services.AddDeployment<JsonRecipeDeploymentSource, JsonRecipeDeploymentStep, JsonRecipeDeploymentStepDriver>();
     }
 }

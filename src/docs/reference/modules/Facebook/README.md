@@ -8,7 +8,7 @@
 - Meta Login
 - Meta Widgets
 
-Configuration can be set through the _Configuration -> Meta_ settings menu in the admin dashboard.
+Configuration can be set through the _Settings -> Integrations -> Meta App_ settings menu in the admin dashboard.
 
 ## Core Components
 
@@ -44,8 +44,9 @@ If no value is provided, setup Meta app to use the default path /signin-facebook
 
 ## Users Registration
 
-- If you want to enable new users to register to the site through their Meta login, the `OrchardCore.Users.Registration` feature must be enabled and setup accordingly.
-- An existing user can link his account to his Meta login through the External Logins link from User menu
+- Enable the `OrchardCore.Users.Registration` feature when you also want local site registration.
+- New external-user creation and profile generation are controlled from the Users module's [`ExternalRegistrationSettings`](../Users/README.md#external-authentication-settings).
+- An existing user can link the account through the External Logins link from the user menu.
 
 ## Meta Social Plugins Widgets
 
@@ -62,7 +63,51 @@ It defines the following widgets:
 
 ## Meta Pixel
 
-This feature provides you a way to add Meta Pixel tracking to your site. Simply navigate to _Configuration -> Settings -> Meta Pixel_ settings and provide your `Pixel Identifier`.
+This feature provides you a way to add Meta Pixel tracking to your site. Simply navigate to _Settings -> Integrations -> Meta Pixel_ settings and provide your `Pixel Identifier`.
+
+## Recipe Configuration
+
+Facebook settings can be configured using the `Settings` recipe step:
+
+```json
+{
+  "steps": [
+    {
+      "name": "settings",
+      "FacebookSettings": {
+        "AppId": "your-app-id",
+        "AppSecret": "your-app-secret",
+        "FBInit": true,
+        "FBInitParams": "status: true,\nxfbml: true,\nautoLogAppEvents: true",
+        "SdkJs": "sdk.js",
+        "Version": "v3.2"
+      },
+      "FacebookLoginSettings": {
+        "CallbackPath": "/signin-facebook",
+        "SaveTokens": false
+      }
+    }
+  ]
+}
+```
+
+### Core Settings
+
+| Property       | Type    | Description                                                        |
+|----------------|---------|--------------------------------------------------------------------|
+| `AppId`        | String  | The Facebook Application ID. **Required.**                         |
+| `AppSecret`    | String  | The Facebook Application Secret. **Required.**                     |
+| `FBInit`       | Boolean | Whether to initialize the Facebook JavaScript SDK on the frontend. |
+| `FBInitParams` | String  | Additional parameters for `FB.init()` call.                        |
+| `SdkJs`        | String  | The name of the SDK JavaScript file to load. **Required.**         |
+| `Version`      | String  | The Facebook Graph API version to use (e.g., `v3.2`).              |
+
+### Login Settings
+
+| Property       | Type    | Description                                                                  |
+|----------------|---------|------------------------------------------------------------------------------|
+| `CallbackPath` | String  | The request path where the user-agent will be returned after authentication. |
+| `SaveTokens`   | Boolean | Whether to save the access and refresh tokens.                               |
 
 ## Meta Settings Configuration
 
@@ -71,16 +116,16 @@ The `OrchardCore.Facebook` module allows the user to use configuration values to
 The following configuration values can be customized:
 
 ```json
-    "OrchardCore_Facebook": {
-      "AppId": "",
-      "AppSecret": "",
-      "FBInit": false,
-      "FBInitParams": "status:true,
-xfbml:true,
-autoLogAppEvents:true",
-      "SdkJs": "sdk.js",
-      "Version": "v3.2"
-    }
+{
+  "OrchardCore_Facebook": {
+    "AppId": "",
+    "AppSecret": "",
+    "FBInit": false,
+    "FBInitParams": "status:true,xfbml:true,autoLogAppEvents:true",
+    "SdkJs": "sdk.js",
+    "Version": "v3.2"
+  }
+}
 ```
 
-For more information please refer to [Configuration](../../core/Configuration/README.md).
+For more information please refer to [Configuration](../Configuration/README.md).

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using OrchardCore.Entities;
 using OrchardCore.Notifications.Models;
 using OrchardCore.Users.Models;
@@ -23,10 +19,14 @@ public class NotificationMethodProviderAccessor : INotificationMethodProviderAcc
 
         if (user != null)
         {
-            var notificationPart = user.As<UserNotificationPreferencesPart>();
+            List<string> selectedMethods = [];
+            string[] optout = [];
 
-            var selectedMethods = ((notificationPart?.Methods) ?? []).ToList();
-            var optout = notificationPart.Optout ?? [];
+            if (user.TryGet<UserNotificationPreferencesPart>(out var notificationPart))
+            {
+                selectedMethods = notificationPart.Methods?.ToList() ?? [];
+                optout = notificationPart.Optout ?? [];
+            }
 
             var methods = _notificationMethodProviders.Where(provider => !optout.Contains(provider.Method));
             if (selectedMethods.Count > 0)

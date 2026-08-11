@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Localization;
@@ -10,13 +6,12 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using OrchardCore.Admin;
 using OrchardCore.DisplayManagement.Notify;
-using OrchardCore.Email.Core;
-using OrchardCore.Email.Core.Services;
+using OrchardCore.Email.Services;
 using OrchardCore.Email.ViewModels;
 
 namespace OrchardCore.Email.Controllers;
 
-public class AdminController : Controller
+public sealed class AdminController : Controller
 {
     private readonly IAuthorizationService _authorizationService;
     private readonly INotifier _notifier;
@@ -25,8 +20,8 @@ public class AdminController : Controller
     private readonly IEmailService _emailService;
     private readonly IEmailProviderResolver _emailProviderResolver;
 
-    protected readonly IHtmlLocalizer H;
-    protected readonly IStringLocalizer S;
+    internal readonly IHtmlLocalizer H;
+    internal readonly IStringLocalizer S;
 
     public AdminController(
         IAuthorizationService authorizationService,
@@ -51,7 +46,7 @@ public class AdminController : Controller
     [Admin("Email/Test", "EmailTest")]
     public async Task<IActionResult> Test()
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageEmailSettings))
+        if (!await _authorizationService.AuthorizeAsync(User, EmailPermissions.ManageEmailSettings))
         {
             return Forbid();
         }
@@ -61,7 +56,7 @@ public class AdminController : Controller
             Provider = _emailOptions.DefaultProviderName,
         };
 
-        PopulateModel(model);
+        await PopulateModelAsync(model);
 
         return View(model);
     }
@@ -69,7 +64,7 @@ public class AdminController : Controller
     [HttpPost]
     public async Task<IActionResult> Test(EmailTestViewModel model)
     {
-        if (!await _authorizationService.AuthorizeAsync(User, Permissions.ManageEmailSettings))
+        if (!await _authorizationService.AuthorizeAsync(User, EmailPermissions.ManageEmailSettings))
         {
             return Forbid();
         }
@@ -91,10 +86,7 @@ public class AdminController : Controller
 
                 foreach (var error in result.Errors)
                 {
-                    foreach (var errorMessage in error.Value)
-                    {
-                        ModelState.AddModelError(error.Key, errorMessage);
-                    }
+                    ModelState.AddModelError(error.Key, error.Message.Value);
                 }
             }
             catch (InvalidEmailProviderException)
@@ -107,7 +99,7 @@ public class AdminController : Controller
             }
         }
 
-        PopulateModel(model);
+        await PopulateModelAsync(model);
 
         return View(model);
     }
@@ -119,12 +111,12 @@ public class AdminController : Controller
             To = testSettings.To,
             Bcc = testSettings.Bcc,
             Cc = testSettings.Cc,
-            ReplyTo = testSettings.ReplyTo
+            ReplyTo = testSettings.ReplyTo,
         };
 
         if (!string.IsNullOrWhiteSpace(testSettings.From))
         {
-            message.Sender = testSettings.From;
+            message.From = testSettings.From;
         }
 
         if (!string.IsNullOrWhiteSpace(testSettings.Subject))
@@ -134,13 +126,13 @@ public class AdminController : Controller
 
         if (!string.IsNullOrWhiteSpace(testSettings.Body))
         {
-            message.Body = testSettings.Body;
+            message.TextBody = testSettings.Body;
         }
 
         return message;
     }
 
-    private async void PopulateModel(EmailTestViewModel model)
+    private async Task PopulateModelAsync(EmailTestViewModel model)
     {
         var options = new List<SelectListItem>();
 

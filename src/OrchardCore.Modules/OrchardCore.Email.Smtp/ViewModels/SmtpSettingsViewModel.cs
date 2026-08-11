@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace OrchardCore.Email.Smtp.ViewModels;
@@ -14,7 +13,7 @@ public class SmtpSettingsViewModel
     [Range(0, 65535)]
     public int Port { get; set; } = 25;
 
-    public bool AutoSelectEncryption { get; set; }
+    public bool AutoSelectEncryption { get; set; } = true;
 
     public bool RequireCredentials { get; set; }
 
@@ -34,5 +33,5 @@ public class SmtpSettingsViewModel
 
     public SmtpDeliveryMethod DeliveryMethod { get; set; }
 
-    public string PickupDirectoryLocation { get; set; }
+    public string PickupDirectoryLocation { get; set; } = Services.SmtpPickupDirectoryResolver.DefaultPickupDirectoryLocation;
 }

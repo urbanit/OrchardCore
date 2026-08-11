@@ -1,9 +1,9 @@
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using OrchardCore.Environment.Shell;
 using OrchardCore.Tenants.ViewModels;
 
 namespace OrchardCore.Tenants;
+
 public static class HttpContextExtensions
 {
     public static string GetEncodedUrl(this HttpContext httpContext, ShellSettingsEntry entry, bool appendQuery = true)

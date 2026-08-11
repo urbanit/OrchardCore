@@ -6,6 +6,7 @@ using OrchardCore.DisplayManagement.Handlers;
 using OrchardCore.Navigation;
 
 namespace OrchardCore.AdminMenu;
+
 public static class AdminMenuExtensions
 {
     public static IServiceCollection AddAdminNode<TNode, TNodeBuilder, TNodeDriver>(this IServiceCollection services)
@@ -15,7 +16,7 @@ public static class AdminMenuExtensions
     {
         services.AddAdminNode<TNode, TNodeBuilder>();
 
-        services.AddScoped<IDisplayDriver<MenuItem>, TNodeDriver>();
+        services.AddDisplayDriver<MenuItem, TNodeDriver>();
 
         return services;
     }

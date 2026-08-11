@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using OrchardCore.Seo;
 using OrchardCore.Settings;
 using OrchardCore.Sitemaps.Models;
@@ -32,9 +29,7 @@ public class SitemapsRobotsProvider : IRobotsProvider
             return null;
         }
 
-        var settings = site.As<SitemapsRobotsSettings>();
-
-        if (!settings.IncludeSitemaps)
+        if (!site.TryGet<SitemapsRobotsSettings>(out var settings) || !settings.IncludeSitemaps)
         {
             return null;
         }

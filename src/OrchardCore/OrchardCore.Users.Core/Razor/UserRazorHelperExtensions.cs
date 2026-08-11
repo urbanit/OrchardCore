@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using OrchardCore;
 using OrchardCore.Users.Indexes;
@@ -29,9 +27,9 @@ public static class UserRazorHelperExtensions
     /// <param name="orchardHelper">The <see cref="IOrchardHelper"/>.</param>
     /// <param name="userIds">The user ids to load.</param>
     /// <returns>A list of users with the specific ids.</returns>
-    public static Task<IEnumerable<User>> GetUsersByIdsAsync(this IOrchardHelper orchardHelper, IEnumerable<string> userIds)
+    public static async Task<IEnumerable<User>> GetUsersByIdsAsync(this IOrchardHelper orchardHelper, IEnumerable<string> userIds)
     {
         var session = orchardHelper.HttpContext.RequestServices.GetService<ISession>();
-        return session.Query<User, UserIndex>(x => x.UserId.IsIn(userIds)).ListAsync();
+        return await session.Query<User, UserIndex>(x => x.UserId.IsIn(userIds)).ListAsync();
     }
 }

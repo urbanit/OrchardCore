@@ -23,7 +23,7 @@ The Pattern has access to the current ContentItem and is executed on ContentItem
 The following shapes are rendered when the **Title Part** is attached to a content type.
 
 | Name        | Display Type | Default Location | Model Type           |
-| ----------- | ------------ | ---------------- | -------------------- |
+|-------------|--------------|------------------|----------------------|
 | `TitlePart` | `Detail`     | `Header:5`       | `TitlePartViewModel` |
 | `TitlePart` | `Summary`    | `Header:10`      | `TitlePartViewModel` |
 
@@ -32,6 +32,40 @@ The following shapes are rendered when the **Title Part** is attached to a conte
 The following properties are available in the `TitlePartViewModel` class.
 
 | Name        | Type        | Description                     |
-| ----------- | ----------- | ------------------------------- |
+|-------------|-------------|---------------------------------|
 | `Title`     | `string`    | The title property of the part. |
 | `TitlePart` | `TitlePart` | The `TitlePart` instance.       |
+
+## Placement
+
+For front-end placement, the `TitlePart` shape uses the part name as its differentiator.
+
+For example, to hide the title on the front end:
+
+```json
+{
+    "TitlePart": [
+        {
+            "differentiator": "TitlePart",
+            "place": "-"
+        }
+    ]
+}
+```
+
+To hide or move the **editor** in the admin UI, target the `ContentPart_Edit` wrapper shape instead of `TitlePart_Edit`. The wrapper differentiator is `{ContentType}-{PartName}`.
+
+For example, to hide the `TitlePart` editor row on the `Article` content type editor:
+
+```json
+{
+    "ContentPart_Edit": [
+        {
+            "differentiator": "Article-TitlePart",
+            "place": "-"
+        }
+    ]
+}
+```
+
+`TitlePart_Edit` only targets the inner editor shape. Use `ContentPart_Edit` when you want to hide or move the whole editor row, including its wrapper.
