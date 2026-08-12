@@ -7,8 +7,15 @@
 <zone Name="Title"><h1>@RenderTitleSegments(T["Theme Customization"])</h1></zone>
 
 <div class="alert alert-info" role="alert">
-    <p class="mb-0">@T["Bootstrap Liquid template customization from an existing front-end theme. This feature lists supported Liquid templates from the selected base theme and lets you clone local overrides without modifying the packaged theme files."]</p>
+    <p class="mb-0">@T["Bootstrap Liquid template customization from the active site theme. This feature lists the active theme's supported Liquid templates and lets you clone local overrides without modifying the packaged theme files."]</p>
 </div>
+
+@if (Model.Initialized && !Model.BaseThemeIsActive)
+{
+    <div class="alert alert-warning" role="alert">
+        <p class="mb-0">@T["Theme customization was initialized from '{0}', but the active site theme is now '{1}'. Reset customization to start over with the active theme.", Model.BaseThemeName, Model.CurrentThemeName]</p>
+    </div>
+}
 
 <div class="card mb-3">
     <div class="card-body">
@@ -36,33 +43,32 @@
 
 @if (!Model.Initialized)
 {
-    <form asp-action="Initialize" method="post" class="no-multisubmit">
-        <div class="card text-bg-theme mb-3 position-sticky action-bar">
-            <div class="card-body p-3 text-end">
-                <button type="submit" class="btn btn-primary save">@T["Initialize Customization"]</button>
-            </div>
+    @if (!Model.CurrentThemeSupportsCustomization)
+    {
+        <div class="alert alert-warning" role="alert">
+            <p class="mb-0">@T["The active theme '{0}' does not support Liquid template cloning.", Model.CurrentThemeName]</p>
         </div>
-
-        <div class="ocat-wrapper">
-            <label asp-for="BaseThemeId" class="ocat-label">@T["Base Theme"]</label>
-            <div class="ocat-end">
-                <select asp-for="BaseThemeId" asp-items="Model.AvailableThemes" class="form-select">
-                    <option value="">@T["Select a theme"]</option>
-                </select>
-                <span class="hint">@T["Only themes with supported Liquid templates are listed. The number in parentheses is the count of available theme templates."]</span>
-            </div>
-        </div>
-
-        <div class="ocat-wrapper" asp-validation-class-for="CloneAllTemplatesOnInitialize">
-            <div class="ocat-end-offset">
-                <div class="form-check">
-                    <input asp-for="CloneAllTemplatesOnInitialize" class="form-check-input" />
-                    <label asp-for="CloneAllTemplatesOnInitialize" class="form-check-label">@T["Clone all theme templates during initialization"]</label>
+    }
+    else
+    {
+        <form asp-action="Initialize" method="post" class="no-multisubmit">
+            <div class="card text-bg-theme mb-3 position-sticky action-bar">
+                <div class="card-body p-3 text-end">
+                    <button type="submit" class="btn btn-primary save">@T["Initialize Customization for '{0}'", Model.CurrentThemeName]</button>
                 </div>
-                <span class="hint dashed">@T["Leave this unchecked to initialize first and decide template-by-template which local customizations to clone."]</span>
             </div>
-        </div>
-    </form>
+
+            <div class="ocat-wrapper" asp-validation-class-for="CloneAllTemplatesOnInitialize">
+                <div class="ocat-end-offset">
+                    <div class="form-check">
+                        <input asp-for="CloneAllTemplatesOnInitialize" class="form-check-input" />
+                        <label asp-for="CloneAllTemplatesOnInitialize" class="form-check-label">@T["Clone all theme templates during initialization"]</label>
+                    </div>
+                    <span class="hint dashed">@T["Leave this unchecked to initialize first and decide template-by-template which local customizations to clone."]</span>
+                </div>
+            </div>
+        </form>
+    }
 }
 else
 {
@@ -84,7 +90,7 @@ else
         <div class="card-body p-0">
             @if (Model.ThemeTemplates.Count == 0)
             {
-                <div class="p-3">@T["No supported theme templates were found for the selected base theme."]</div>
+                <div class="p-3">@T["No supported theme templates were found for the base theme."]</div>
             }
             else
             {

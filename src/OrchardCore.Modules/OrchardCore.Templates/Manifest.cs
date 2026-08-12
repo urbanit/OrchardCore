@@ -28,5 +28,5 @@ using OrchardCore.Modules.Manifest;
     Name = "Theme Customization",
     Description = "Bootstrap Liquid front-end template customization from an existing theme.",
     Dependencies = ["OrchardCore.Templates", "OrchardCore.Themes"],
-    Category = "Design"
+    Category = "Theming"
 )]

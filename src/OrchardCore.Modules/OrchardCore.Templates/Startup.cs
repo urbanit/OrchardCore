@@ -2,14 +2,17 @@ using Microsoft.Extensions.DependencyInjection;
 using OrchardCore.ContentTypes.Editors;
 using OrchardCore.Deployment;
 using OrchardCore.DisplayManagement;
+using OrchardCore.DisplayManagement.Handlers;
 using OrchardCore.Modules;
 using OrchardCore.Navigation;
 using OrchardCore.Recipes;
 using OrchardCore.Security.Permissions;
 using OrchardCore.Templates.Deployment;
+using OrchardCore.Templates.Drivers;
 using OrchardCore.Templates.Recipes;
 using OrchardCore.Templates.Services;
 using OrchardCore.Templates.Settings;
+using OrchardCore.Themes.Models;
 
 namespace OrchardCore.Templates;
 
@@ -47,6 +50,7 @@ public sealed class ThemeCustomizationStartup : StartupBase
         services.AddScoped<ThemeCustomizationService>();
         services.AddPermissionProvider<ThemeCustomizationPermissions>();
         services.AddNavigationProvider<ThemeCustomizationAdminMenu>();
+        services.AddDisplayDriver<ThemeEntry, ThemeCustomizationThemeEntryDisplayDriver>();
     }
 }
 

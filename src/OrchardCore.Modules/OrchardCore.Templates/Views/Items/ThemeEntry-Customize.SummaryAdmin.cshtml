@@ -1,0 +1,6 @@
+@using OrchardCore.DisplayManagement.Views
+@using OrchardCore.Themes.Models
+
+@model ShapeViewModel<ThemeEntry>
+
+<a asp-action="Index" asp-controller="ThemeCustomization" asp-route-area="OrchardCore.Templates" class="btn btn-sm btn-secondary">@T["Customize"]</a>

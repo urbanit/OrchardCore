@@ -39,43 +39,37 @@ public class ThemeCustomizationService
 
     public Task<ThemeCustomizationDocument> GetStatusAsync() => _themeCustomizationManager.GetDocumentAsync();
 
-    public async Task<IReadOnlyList<ThemeCustomizationThemeEntry>> GetAvailableThemesAsync()
+    /// <summary>
+    /// Theme customization always targets the active site theme, so this resolves that theme's
+    /// clone-candidate summary, or <see langword="null"/> if it doesn't support Liquid template cloning.
+    /// </summary>
+    public async Task<ThemeCustomizationThemeEntry> GetCurrentThemeAsync()
     {
         var currentThemeId = await _siteThemeService.GetSiteThemeNameAsync();
-        var features = await _shellFeaturesManager.GetAvailableFeaturesAsync();
-        var modules = _applicationContext.Application;
-        var results = new List<ThemeCustomizationThemeEntry>();
 
-        foreach (var feature in features.Where(IsSupportedTheme).OrderBy(x => x.Name ?? x.Id))
-        {
-            var module = modules.GetModule(feature.Extension.Id);
-            var cloneCandidates = GetCloneCandidates(module);
-
-            if (cloneCandidates.Count == 0)
-            {
-                continue;
-            }
-
-            results.Add(new ThemeCustomizationThemeEntry
-            {
-                ThemeId = feature.Id,
-                ThemeName = feature.Name ?? feature.Id,
-                CloneableTemplateCount = cloneCandidates.Count,
-                IsCurrent = string.Equals(feature.Id, currentThemeId, StringComparison.OrdinalIgnoreCase),
-            });
-        }
-
-        return results;
+        return await GetAvailableThemeAsync(currentThemeId);
     }
 
-    public async Task<IReadOnlyList<ThemeCustomizationTemplateEntry>> GetThemeTemplatesAsync(string baseThemeId)
+    /// <summary>
+    /// Resolves a display name for a theme id even if the theme is no longer a valid customization
+    /// candidate (e.g. it was disabled after being used to initialize customization).
+    /// </summary>
+    public async Task<string> GetThemeDisplayNameAsync(string themeId)
     {
-        if (string.IsNullOrWhiteSpace(baseThemeId))
+        if (string.IsNullOrWhiteSpace(themeId))
         {
-            return [];
+            return null;
         }
 
-        var theme = await GetAvailableThemeAsync(baseThemeId);
+        var features = await _shellFeaturesManager.GetAvailableFeaturesAsync();
+        var feature = features.FirstOrDefault(x => string.Equals(x.Id, themeId, StringComparison.OrdinalIgnoreCase));
+
+        return feature?.Name ?? themeId;
+    }
+
+    public async Task<IReadOnlyList<ThemeCustomizationTemplateEntry>> GetThemeTemplatesAsync()
+    {
+        var theme = await GetCurrentThemeAsync();
         if (theme == null)
         {
             return [];
@@ -83,11 +77,11 @@ public class ThemeCustomizationService
 
         var templatesDocument = await _templatesManager.GetTemplatesDocumentAsync();
         var status = await _themeCustomizationManager.GetDocumentAsync();
-        var trackedTemplates = string.Equals(status.BaseThemeId, baseThemeId, StringComparison.OrdinalIgnoreCase)
+        var trackedTemplates = string.Equals(status.BaseThemeId, theme.ThemeId, StringComparison.OrdinalIgnoreCase)
             ? status.ClonedTemplates
             : [];
 
-        return GetCloneCandidates(_applicationContext.Application.GetModule(baseThemeId))
+        return GetCloneCandidates(_applicationContext.Application.GetModule(theme.ThemeId))
             .Select(candidate => new ThemeCustomizationTemplateEntry
             {
                 TemplateName = candidate.TemplateName,
@@ -99,42 +93,33 @@ public class ThemeCustomizationService
             .ToArray();
     }
 
-    public async Task<ThemeCustomizationOperationResult> InitializeAsync(string baseThemeId, bool cloneAllTemplates)
+    public async Task<ThemeCustomizationOperationResult> InitializeAsync(bool cloneAllTemplates)
     {
         var document = await _themeCustomizationManager.LoadDocumentAsync();
         if (document.Initialized)
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = "Theme customization has already been initialized.",
+                MessageKey = "Theme customization has already been initialized.",
             };
         }
 
-        var theme = await GetAvailableThemeAsync(baseThemeId);
+        var theme = await GetCurrentThemeAsync();
         if (theme == null)
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = "The selected theme does not support Liquid template cloning.",
+                MessageKey = "The active theme does not support Liquid template cloning.",
             };
         }
 
-        var currentThemeId = await _siteThemeService.GetSiteThemeNameAsync();
-        if (!string.Equals(theme.ThemeId, currentThemeId, StringComparison.OrdinalIgnoreCase))
-        {
-            return new ThemeCustomizationOperationResult
-            {
-                Message = "The selected base theme must be the current site theme.",
-            };
-        }
-
-        var module = _applicationContext.Application.GetModule(baseThemeId);
+        var module = _applicationContext.Application.GetModule(theme.ThemeId);
         var cloneCandidates = GetCloneCandidates(module);
         if (cloneCandidates.Count == 0)
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = "No supported Liquid templates were found for the selected theme.",
+                MessageKey = "No supported Liquid templates were found for the selected theme.",
             };
         }
 
@@ -171,30 +156,32 @@ public class ThemeCustomizationService
         document.ClonedTemplates.AddRange(clonedTemplateNames.OrderBy(x => x));
         await _themeCustomizationManager.UpdateAsync(document);
 
+        var (messageKey, messageArgs) = BuildInitializationMessage(theme.ThemeName, cloneAllTemplates, clonedTemplateNames.Count, existingLocalCustomizationCount);
+
         return new ThemeCustomizationOperationResult
         {
             Succeeded = true,
             TemplatesAffected = clonedTemplateNames.Count,
-            Message = BuildInitializationMessage(theme.ThemeName, cloneAllTemplates, clonedTemplateNames.Count, existingLocalCustomizationCount),
+            MessageKey = messageKey,
+            MessageArgs = messageArgs,
         };
     }
 
     public async Task<ThemeCustomizationOperationResult> CloneTemplateAsync(string templateName)
     {
-        var (document, theme, candidate) = await GetCurrentThemeTemplateContextAsync(templateName);
-        if (!document.Initialized || string.IsNullOrWhiteSpace(document.BaseThemeId))
+        var (document, theme, candidate) = await GetCurrentThemeTemplateContextAsync(templateName, requireActiveBaseTheme: true);
+
+        var notInitializedResult = EnsureInitialized(document);
+        if (notInitializedResult != null)
         {
-            return new ThemeCustomizationOperationResult
-            {
-                Message = "Theme customization has not been initialized yet.",
-            };
+            return notInitializedResult;
         }
 
         if (theme == null || candidate == null)
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = "The selected theme template could not be found.",
+                MessageKey = "The selected theme template could not be found.",
             };
         }
 
@@ -203,44 +190,40 @@ public class ThemeCustomizationService
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = $"'{candidate.TemplateName}' already has a local customization.",
+                MessageKey = "'{0}' already has a local customization.",
+                MessageArgs = [candidate.TemplateName],
             };
         }
 
         templatesDocument.Templates[candidate.TemplateName] = CreateTemplate(candidate, theme.ThemeName);
         await _templatesManager.UpdateTemplatesDocumentAsync(templatesDocument);
 
-        if (!document.ClonedTemplates.Contains(candidate.TemplateName, TemplateNameComparer))
-        {
-            document.ClonedTemplates.Add(candidate.TemplateName);
-            document.ClonedTemplates.Sort(TemplateNameComparer);
-            await _themeCustomizationManager.UpdateAsync(document);
-        }
+        await TrackClonedTemplateAsync(document, candidate.TemplateName);
 
         return new ThemeCustomizationOperationResult
         {
             Succeeded = true,
             TemplatesAffected = 1,
-            Message = $"'{candidate.TemplateName}' was cloned from '{theme.ThemeName}'.",
+            MessageKey = "'{0}' was cloned from '{1}'.",
+            MessageArgs = [candidate.TemplateName, theme.ThemeName],
         };
     }
 
     public async Task<ThemeCustomizationOperationResult> ResetTemplateAsync(string templateName)
     {
-        var (document, theme, candidate) = await GetCurrentThemeTemplateContextAsync(templateName);
-        if (!document.Initialized || string.IsNullOrWhiteSpace(document.BaseThemeId))
+        var (document, theme, candidate) = await GetCurrentThemeTemplateContextAsync(templateName, requireActiveBaseTheme: true);
+
+        var notInitializedResult = EnsureInitialized(document);
+        if (notInitializedResult != null)
         {
-            return new ThemeCustomizationOperationResult
-            {
-                Message = "Theme customization has not been initialized yet.",
-            };
+            return notInitializedResult;
         }
 
         if (theme == null || candidate == null)
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = "The selected theme template could not be found.",
+                MessageKey = "The selected theme template could not be found.",
             };
         }
 
@@ -248,7 +231,8 @@ public class ThemeCustomizationService
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = $"'{candidate.TemplateName}' is not managed by theme customization and cannot be reset.",
+                MessageKey = "'{0}' is not managed by theme customization and cannot be reset.",
+                MessageArgs = [candidate.TemplateName],
             };
         }
 
@@ -257,44 +241,38 @@ public class ThemeCustomizationService
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = $"'{candidate.TemplateName}' does not have a local customization to reset.",
+                MessageKey = "'{0}' does not have a local customization to reset.",
+                MessageArgs = [candidate.TemplateName],
             };
         }
 
         templatesDocument.Templates[candidate.TemplateName] = CreateTemplate(candidate, theme.ThemeName);
         await _templatesManager.UpdateTemplatesDocumentAsync(templatesDocument);
 
-        if (!document.ClonedTemplates.Contains(candidate.TemplateName, TemplateNameComparer))
-        {
-            document.ClonedTemplates.Add(candidate.TemplateName);
-            document.ClonedTemplates.Sort(TemplateNameComparer);
-            await _themeCustomizationManager.UpdateAsync(document);
-        }
-
         return new ThemeCustomizationOperationResult
         {
             Succeeded = true,
             TemplatesAffected = 1,
-            Message = $"'{candidate.TemplateName}' was reset to the packaged theme version.",
+            MessageKey = "'{0}' was reset to the packaged theme version.",
+            MessageArgs = [candidate.TemplateName],
         };
     }
 
     public async Task<ThemeCustomizationOperationResult> DeleteTemplateAsync(string templateName)
     {
-        var (document, _, candidate) = await GetCurrentThemeTemplateContextAsync(templateName);
-        if (!document.Initialized || string.IsNullOrWhiteSpace(document.BaseThemeId))
+        var (document, _, candidate) = await GetCurrentThemeTemplateContextAsync(templateName, requireActiveBaseTheme: false);
+
+        var notInitializedResult = EnsureInitialized(document);
+        if (notInitializedResult != null)
         {
-            return new ThemeCustomizationOperationResult
-            {
-                Message = "Theme customization has not been initialized yet.",
-            };
+            return notInitializedResult;
         }
 
         if (candidate == null)
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = "The selected theme template could not be found.",
+                MessageKey = "The selected theme template could not be found.",
             };
         }
 
@@ -302,7 +280,8 @@ public class ThemeCustomizationService
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = $"'{candidate.TemplateName}' is not managed by theme customization and cannot be deleted.",
+                MessageKey = "'{0}' is not managed by theme customization and cannot be deleted.",
+                MessageArgs = [candidate.TemplateName],
             };
         }
 
@@ -311,7 +290,8 @@ public class ThemeCustomizationService
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = $"'{candidate.TemplateName}' does not have a local customization to delete.",
+                MessageKey = "'{0}' does not have a local customization to delete.",
+                MessageArgs = [candidate.TemplateName],
             };
         }
 
@@ -326,19 +306,19 @@ public class ThemeCustomizationService
         {
             Succeeded = true,
             TemplatesAffected = 1,
-            Message = $"'{candidate.TemplateName}' local customization was deleted.",
+            MessageKey = "'{0}' local customization was deleted.",
+            MessageArgs = [candidate.TemplateName],
         };
     }
 
     public async Task<ThemeCustomizationOperationResult> ReseedMissingTemplatesAsync()
     {
         var document = await _themeCustomizationManager.LoadDocumentAsync();
-        if (!document.Initialized || string.IsNullOrWhiteSpace(document.BaseThemeId))
+
+        var notInitializedResult = EnsureInitialized(document);
+        if (notInitializedResult != null)
         {
-            return new ThemeCustomizationOperationResult
-            {
-                Message = "Theme customization has not been initialized yet.",
-            };
+            return notInitializedResult;
         }
 
         var theme = await GetAvailableThemeAsync(document.BaseThemeId);
@@ -346,11 +326,20 @@ public class ThemeCustomizationService
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = "The selected theme does not support Liquid template cloning.",
+                MessageKey = "The selected theme does not support Liquid template cloning.",
             };
         }
 
-        var module = _applicationContext.Application.GetModule(document.BaseThemeId);
+        var currentThemeId = await _siteThemeService.GetSiteThemeNameAsync();
+        if (!string.Equals(theme.ThemeId, currentThemeId, StringComparison.OrdinalIgnoreCase))
+        {
+            return new ThemeCustomizationOperationResult
+            {
+                MessageKey = "The tracked base theme is no longer the active site theme. Reset customization before reseeding.",
+            };
+        }
+
+        var module = _applicationContext.Application.GetModule(theme.ThemeId);
         var cloneCandidates = GetCloneCandidates(module);
         var templatesDocument = await _templatesManager.LoadTemplatesDocumentAsync();
 
@@ -377,7 +366,7 @@ public class ThemeCustomizationService
             return new ThemeCustomizationOperationResult
             {
                 Succeeded = true,
-                Message = "All theme templates already have local customizations.",
+                MessageKey = "All theme templates already have local customizations.",
             };
         }
 
@@ -389,7 +378,7 @@ public class ThemeCustomizationService
         {
             Succeeded = true,
             TemplatesAffected = addedCount,
-            Message = "Missing theme templates were cloned.",
+            MessageKey = "Missing theme templates were cloned.",
         };
     }
 
@@ -400,7 +389,7 @@ public class ThemeCustomizationService
         {
             return new ThemeCustomizationOperationResult
             {
-                Message = "Theme customization has not been initialized yet.",
+                MessageKey = "Theme customization has not been initialized yet.",
             };
         }
 
@@ -415,7 +404,10 @@ public class ThemeCustomizationService
             }
         }
 
-        await _templatesManager.UpdateTemplatesDocumentAsync(templatesDocument);
+        if (removedCount > 0)
+        {
+            await _templatesManager.UpdateTemplatesDocumentAsync(templatesDocument);
+        }
 
         document.Initialized = false;
         document.BaseThemeId = null;
@@ -428,11 +420,34 @@ public class ThemeCustomizationService
         {
             Succeeded = true,
             TemplatesAffected = removedCount,
-            Message = "Tracked theme customizations were reset.",
+            MessageKey = "Tracked theme customizations were reset.",
         };
     }
 
-    private async Task<(ThemeCustomizationDocument Document, ThemeCustomizationThemeEntry Theme, ThemeCloneTemplateEntry Candidate)> GetCurrentThemeTemplateContextAsync(string templateName)
+    private static ThemeCustomizationOperationResult EnsureInitialized(ThemeCustomizationDocument document)
+    {
+        if (!document.Initialized || string.IsNullOrWhiteSpace(document.BaseThemeId))
+        {
+            return new ThemeCustomizationOperationResult
+            {
+                MessageKey = "Theme customization has not been initialized yet.",
+            };
+        }
+
+        return null;
+    }
+
+    private async Task TrackClonedTemplateAsync(ThemeCustomizationDocument document, string templateName)
+    {
+        if (!document.ClonedTemplates.Contains(templateName, TemplateNameComparer))
+        {
+            document.ClonedTemplates.Add(templateName);
+            document.ClonedTemplates.Sort(TemplateNameComparer);
+            await _themeCustomizationManager.UpdateAsync(document);
+        }
+    }
+
+    private async Task<(ThemeCustomizationDocument Document, ThemeCustomizationThemeEntry Theme, ThemeCloneTemplateEntry Candidate)> GetCurrentThemeTemplateContextAsync(string templateName, bool requireActiveBaseTheme)
     {
         var document = await _themeCustomizationManager.LoadDocumentAsync();
         if (!document.Initialized || string.IsNullOrWhiteSpace(document.BaseThemeId))
@@ -446,7 +461,16 @@ public class ThemeCustomizationService
             return (document, null, null);
         }
 
-        var candidate = GetCloneCandidates(_applicationContext.Application.GetModule(document.BaseThemeId))
+        if (requireActiveBaseTheme)
+        {
+            var currentThemeId = await _siteThemeService.GetSiteThemeNameAsync();
+            if (!string.Equals(theme.ThemeId, currentThemeId, StringComparison.OrdinalIgnoreCase))
+            {
+                return (document, null, null);
+            }
+        }
+
+        var candidate = GetCloneCandidates(_applicationContext.Application.GetModule(theme.ThemeId))
             .FirstOrDefault(x => string.Equals(x.TemplateName, templateName, StringComparison.OrdinalIgnoreCase));
 
         return (document, theme, candidate);
@@ -459,7 +483,35 @@ public class ThemeCustomizationService
             return null;
         }
 
-        return (await GetAvailableThemesAsync()).FirstOrDefault(x => string.Equals(x.ThemeId, themeId, StringComparison.OrdinalIgnoreCase));
+        var features = await _shellFeaturesManager.GetAvailableFeaturesAsync();
+        var feature = features.FirstOrDefault(x => IsSupportedTheme(x) && string.Equals(x.Id, themeId, StringComparison.OrdinalIgnoreCase));
+        if (feature == null)
+        {
+            return null;
+        }
+
+        var currentThemeId = await _siteThemeService.GetSiteThemeNameAsync();
+
+        return BuildThemeEntry(feature, currentThemeId);
+    }
+
+    private ThemeCustomizationThemeEntry BuildThemeEntry(IFeatureInfo feature, string currentThemeId)
+    {
+        var module = _applicationContext.Application.GetModule(feature.Extension.Id);
+        var cloneCandidates = GetCloneCandidates(module);
+
+        if (cloneCandidates.Count == 0)
+        {
+            return null;
+        }
+
+        return new ThemeCustomizationThemeEntry
+        {
+            ThemeId = feature.Id,
+            ThemeName = feature.Name ?? feature.Id,
+            CloneableTemplateCount = cloneCandidates.Count,
+            IsCurrent = string.Equals(feature.Id, currentThemeId, StringComparison.OrdinalIgnoreCase),
+        };
     }
 
     private static bool IsSupportedTheme(IFeatureInfo feature)
@@ -535,23 +587,23 @@ public class ThemeCustomizationService
         Description = $"Cloned from {themeName} ({candidate.RelativePath}).",
     };
 
-    private static string BuildInitializationMessage(string themeName, bool cloneAllTemplates, int clonedCount, int existingLocalCustomizationCount)
+    private static (string MessageKey, object[] MessageArgs) BuildInitializationMessage(string themeName, bool cloneAllTemplates, int clonedCount, int existingLocalCustomizationCount)
     {
         if (!cloneAllTemplates)
         {
-            return $"Theme customization was initialized from '{themeName}'. Theme templates can now be cloned individually.";
+            return ("Theme customization was initialized from '{0}'. Theme templates can now be cloned individually.", [themeName]);
         }
 
         if (clonedCount == 0 && existingLocalCustomizationCount > 0)
         {
-            return $"Theme customization was initialized from '{themeName}'. All supported templates already had local customizations.";
+            return ("Theme customization was initialized from '{0}'. All supported templates already had local customizations.", [themeName]);
         }
 
         if (existingLocalCustomizationCount > 0)
         {
-            return $"Theme customization was initialized from '{themeName}'. {clonedCount} template(s) were cloned and {existingLocalCustomizationCount} already had local customizations.";
+            return ("Theme customization was initialized from '{0}'. {1} template(s) were cloned and {2} already had local customizations.", [themeName, clonedCount, existingLocalCustomizationCount]);
         }
 
-        return $"Theme customization was initialized from '{themeName}'. {clonedCount} template(s) were cloned.";
+        return ("Theme customization was initialized from '{0}'. {1} template(s) were cloned.", [themeName, clonedCount]);
     }
 }
