@@ -22,3 +22,11 @@ using OrchardCore.Modules.Manifest;
     Dependencies = ["OrchardCore.Templates"],
     Category = "Development"
 )]
+
+[assembly: Feature(
+    Id = "OrchardCore.ThemeCustomization",
+    Name = "Theme Customization",
+    Description = "Bootstrap Liquid front-end template customization from an existing theme.",
+    Dependencies = ["OrchardCore.Templates", "OrchardCore.Themes"],
+    Category = "Design"
+)]

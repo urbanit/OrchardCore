@@ -38,6 +38,18 @@ public sealed class Startup : StartupBase
     }
 }
 
+[Feature("OrchardCore.ThemeCustomization")]
+public sealed class ThemeCustomizationStartup : StartupBase
+{
+    public override void ConfigureServices(IServiceCollection services)
+    {
+        services.AddScoped<ThemeCustomizationManager>();
+        services.AddScoped<ThemeCustomizationService>();
+        services.AddPermissionProvider<ThemeCustomizationPermissions>();
+        services.AddNavigationProvider<ThemeCustomizationAdminMenu>();
+    }
+}
+
 [Feature("OrchardCore.AdminTemplates")]
 public sealed class AdminTemplatesStartup : StartupBase
 {

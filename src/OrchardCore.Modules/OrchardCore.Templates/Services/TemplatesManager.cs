@@ -19,17 +19,19 @@ public class TemplatesManager
     /// </summary>
     public Task<TemplatesDocument> GetTemplatesDocumentAsync() => _documentManager.GetOrCreateImmutableAsync();
 
+    public Task UpdateTemplatesDocumentAsync(TemplatesDocument document) => _documentManager.UpdateAsync(document);
+
     public async Task RemoveTemplateAsync(string name)
     {
         var document = await LoadTemplatesDocumentAsync();
         document.Templates.Remove(name);
-        await _documentManager.UpdateAsync(document);
+        await UpdateTemplatesDocumentAsync(document);
     }
 
     public async Task UpdateTemplateAsync(string name, Template template)
     {
         var document = await LoadTemplatesDocumentAsync();
         document.Templates[name] = template;
-        await _documentManager.UpdateAsync(document);
+        await UpdateTemplatesDocumentAsync(document);
     }
 }

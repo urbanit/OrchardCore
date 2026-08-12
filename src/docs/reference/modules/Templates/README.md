@@ -2,6 +2,19 @@
 
 The templates module allows editors to create custom Liquid templates.
 
+## Theme Customization
+
+When the `OrchardCore.ThemeCustomization` feature is enabled, administrators can bootstrap front-end customization from the current Orchard-discoverable site theme without creating a new compiled theme.
+
+The feature is intentionally **Liquid-only**:
+- it clones supported `.liquid` theme templates into the Templates store;
+- it does not clone `.cshtml` theme templates;
+- it leaves the packaged theme files unchanged.
+
+After initialization, administrators can either clone all supported theme templates immediately or initialize first and then clone, edit, reset, or delete feature-managed local customizations template-by-template. Existing templates that were not created by this feature are shown but cannot be reset or deleted from this screen.
+
+This is useful when you want to start customizing the active front-end from the admin UI while keeping Orchard's normal theme discovery and selection flow intact.
+
 ## Available templates
 
 Templates can be defined using the web editor, or in a theme. Templates are distinguished by their name.  
