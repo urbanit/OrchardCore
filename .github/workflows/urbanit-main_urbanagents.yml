@@ -38,7 +38,7 @@ jobs:
       - name: Ensure wwwroot exists in publish output
         run: |
           mkdir -p ${{env.DOTNET_ROOT}}/myapp/wwwroot
-          touch ${{env.DOTNET_ROOT}}/myapp/wwwroot/.keep
+          touch ${{env.DOTNET_ROOT}}/myapp/wwwroot/placeholder.txt
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
