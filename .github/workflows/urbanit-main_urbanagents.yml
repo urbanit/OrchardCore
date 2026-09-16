@@ -24,10 +24,10 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build ./src/OrchardCore.Cms.Web/OrchardCore.Cms.Web.csproj --configuration Release --framework net10.0
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ./src/OrchardCore.Cms.Web/OrchardCore.Cms.Web.csproj --configuration Release --framework net10.0 --no-build --output ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -62,4 +62,3 @@ jobs:
           app-name: 'urbanAgents'
           slot-name: 'Production'
           package: .
-          
