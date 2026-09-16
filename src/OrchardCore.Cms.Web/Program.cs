@@ -2,6 +2,8 @@ using OrchardCore.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseWebRoot("wwwroot");
+
 builder.Host.UseNLogHost();
 
 builder.Services
