@@ -80,7 +80,6 @@ jobs:
           az webapp deploy \
             --resource-group "$resource_group" \
             --name urbanAgents \
-            --slot Production \
             --src-path "$RUNNER_TEMP/urbanagents.zip" \
             --type zip \
             --clean true \
