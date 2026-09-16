@@ -8,8 +8,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseWebRoot("wwwroot");
-
 #if (UseNLog)
 builder.Host.UseNLogHost();
 #endif
