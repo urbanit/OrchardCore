@@ -35,6 +35,11 @@ jobs:
       - name: dotnet publish
         run: dotnet publish ./src/OrchardCore.Cms.Web/OrchardCore.Cms.Web.csproj --configuration Release --framework net10.0 --no-build --output ${{env.DOTNET_ROOT}}/myapp
 
+      - name: Ensure wwwroot exists in publish output
+        run: |
+          mkdir -p ${{env.DOTNET_ROOT}}/myapp/wwwroot
+          touch ${{env.DOTNET_ROOT}}/myapp/wwwroot/.keep
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
