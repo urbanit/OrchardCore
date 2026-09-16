@@ -8,6 +8,12 @@ on:
     branches:
       - urbanit/main
   workflow_dispatch:
+    inputs:
+      clean:
+        description: Clean the App Service wwwroot before deployment. This removes Orchard Core persistent data stored in App_Data.
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -56,9 +62,27 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B8CEC385B84947B08EEF460F4CBBB5ED }}
 
       - name: Deploy to Azure Web App
+        if: ${{ inputs.clean != true }}
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'urbanAgents'
           slot-name: 'Production'
           package: .
+
+      - name: Clean and deploy to Azure Web App
+        if: ${{ inputs.clean == true }}
+        shell: bash
+        run: |
+          resource_group="$(az webapp list --query "[?name=='urbanAgents'].resourceGroup | [0]" --output tsv)"
+          test -n "$resource_group"
+          zip --recurse-paths "$RUNNER_TEMP/urbanagents.zip" .
+          az webapp deploy \
+            --resource-group "$resource_group" \
+            --name urbanAgents \
+            --slot Production \
+            --src-path "$RUNNER_TEMP/urbanagents.zip" \
+            --type zip \
+            --clean true \
+            --restart true \
+            --only-show-errors
