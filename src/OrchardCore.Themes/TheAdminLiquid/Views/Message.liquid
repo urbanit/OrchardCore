@@ -1,0 +1,27 @@
+{%- assign type = Model.Type | downcase -%}
+{%- case type -%}
+    {%- when "information" -%}{%- assign bs_class_name = "info" -%}
+    {%- when "error" -%}{%- assign bs_class_name = "danger" -%}
+    {%- else -%}{%- assign bs_class_name = type -%}
+{%- endcase -%}
+{%- if bs_class_name == "danger" or bs_class_name == "success" -%}
+    {%- assign close_button_class = "btn-close btn-close-white" -%}
+{%- else -%}
+    {%- assign close_button_class = "btn-close" -%}
+{%- endif -%}
+{%- assign auto_hide = false -%}
+{%- if Model.Milliseconds > 0 -%}{%- assign auto_hide = true -%}{%- endif -%}
+
+<div class="toast border-0 shadow message-{{ type }} text-bg-{{ bs_class_name }}"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true"
+     data-bs-autohide="{{ auto_hide }}"
+     data-bs-delay="{% if auto_hide %}{{ Model.Milliseconds }}{% else %}5000{% endif %}">
+    <div class="d-flex">
+        <div class="toast-body">
+            {{ Model.Message }}
+        </div>
+        <button type="button" class="{{ close_button_class }} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+</div>

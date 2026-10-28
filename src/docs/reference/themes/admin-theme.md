@@ -256,3 +256,45 @@ public sealed class MyService
     }
 }
 ```
+
+## The Admin Liquid Theme
+
+The **The Admin Liquid Theme** (`TheAdminLiquid`) renders the markup of **The Admin** theme with Liquid templates instead of Razor views. It uses `TheAdmin` as its base theme, so it shares its stylesheets, scripts and every Razor view it doesn't replace, and it requires the `OrchardCore.Liquid` feature.
+
+Select it in **Design > Themes** as the admin theme. The pages render the same markup as with The Admin theme, and every template it provides can be cloned as an admin template (`OrchardCore.AdminTemplates`) to change the admin markup without writing a theme.
+
+The theme provides the following Liquid templates:
+
+| Templates | Description |
+| :--- | :--- |
+| `Layout`, `Layout-Login`, `Layout-TwoFactor` | The admin page layouts. |
+| `Navigation-admin`, `NavigationItem-admin`, `NavigationItemLink-admin`, `NavigationItemText` | The admin menu. |
+| `Pager`, `Pager_*`, `Pager_PageSizeSelector` | The pager and its page size selector. |
+| `Message`, `NotifyMessages`, `Hint.Admin`, `Breadcrumb`, `ToggleTheme` | The notifications, hints, breadcrumbs and theme toggler. |
+
+### The `TheAdmin` Liquid object
+
+The templates read the state of the admin theme from the `TheAdmin` global object:
+
+| Property | Description |
+| :--- | :--- |
+| `TheAdmin.ThemeMode` | The selected color mode, such as `auto`, `light` or `dark`. |
+| `TheAdmin.Tenant` | The name of the current tenant. |
+| `TheAdmin.AdminUrlPrefix` | The prefix of the admin URLs, `Admin` by default. |
+| `TheAdmin.Navbar` | The `Navbar` shape of the top bar, to render with `shape_render`. |
+| `TheAdmin.DisplayTitlesInTopbar` | Whether the admin settings display the site title in the top bar. |
+| `TheAdmin.DisplayMenuFilter` | Whether the admin settings display the admin menu filter. |
+| `TheAdmin.MenuBehavior` | The admin menu behavior, `focused` or `persistent`. |
+
+### Liquid filters
+
+| Filter | Description |
+| :--- | :--- |
+| `admin_menu_text` | Returns the localized text of an admin menu item, from its view model or shape. |
+| `tag_add_class` | Adds a CSS class to the `TagBuilder` of a shape, such as `{% assign _ = Model.Tag \| tag_add_class: "active" %}`. |
+| `tag_merge_attribute` | Sets an attribute on the `TagBuilder` of a shape, for instance `{% assign _ = Model.Tag \| tag_merge_attribute: "aria-current", "page" %}`. |
+| `html_content` | Turns a string into HTML content, to set an HTML property of a shape. |
+| `unique_id` | Appends a unique suffix to a string, to build an element id. |
+
+!!! note
+    The `NavigationItem-admin` template renders the link of a menu item before its child items, because the Liquid shape recursion guard counts every rendering of the same shape model, even after the previous one has completed.

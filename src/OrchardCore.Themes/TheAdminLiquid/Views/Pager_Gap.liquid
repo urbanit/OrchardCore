@@ -1,0 +1,5 @@
+{%- shape_clear_alternates Model -%}
+{%- shape_type Model "Pager_Link" -%}
+{%- assign value = '<i class="fa-solid fa-ellipsis"></i>' | html_content -%}
+{%- shape_add_properties Model value: value -%}
+{{ Model | shape_render }}

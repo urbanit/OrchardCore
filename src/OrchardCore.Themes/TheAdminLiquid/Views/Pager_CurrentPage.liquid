@@ -1,0 +1,5 @@
+{%- shape_clear_alternates Model -%}
+{%- shape_type Model "Pager_Link" -%}
+{%- assign _ = Model.Tag | tag_add_class: "active" -%}
+{%- assign _ = Model.Tag | tag_merge_attribute: "aria-current", "page" -%}
+{{ Model | shape_render }}
