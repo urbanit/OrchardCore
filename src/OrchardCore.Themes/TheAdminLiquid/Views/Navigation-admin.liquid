@@ -1,0 +1,15 @@
+{%- if TheAdmin.DisplayMenuFilter %}
+<div class="nav-filter">
+    <i class="fa-solid fa-magnifying-glass nav-filter-icon" aria-hidden="true"></i>
+    <input id="filter" class="form-control" placeholder="{{ "Filter" | t }}" type="search" autocomplete="off" aria-label="{{ "Filter the admin menu" | t }}" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" title="Ctrl+Shift+F" />
+</div>
+{%- endif %}
+<nav id="left-nav" aria-label="{{ "Admin menu" | t }}" data-menu-behavior="{{ TheAdmin.MenuBehavior }}">
+    <ul{% if Model.Classes.size > 0 %} class="{{ Model.Classes | join: " " }}"{% endif %} Id="adminMenu">
+        {%- for item in Model.Items -%}{{ item | shape_render }}{%- endfor -%}
+    </ul>
+</nav>
+{%- if TheAdmin.DisplayMenuFilter %}
+{% script src: "~/TheAdmin/js/navigation-admin/NavigationAdmin.min.js", debug_src: "~/TheAdmin/js/navigation-admin/NavigationAdmin.js", at: "Foot", type: "module" %}
+{%- endif %}
+<!-- Menu rendered on {{ "now" | date: "%a, %d %b %Y %H:%M:%S GMT" }} -->

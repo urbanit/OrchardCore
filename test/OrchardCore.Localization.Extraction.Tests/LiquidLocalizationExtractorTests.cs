@@ -12,6 +12,8 @@ public sealed class LiquidLocalizationExtractorTests
     [InlineData("{% cache 'Key' %}{% for x in (1..2) %}{{ 'Nested' | t }}{% endfor %}{% endcache %}")]
     [InlineData("{% a href: '/test' %}{{ 'Nested' | t }}{% enda %}")]
     [InlineData("{% form 'post' %}{{ 'Nested' | t }}{% endform %}")]
+    [InlineData("{% scriptblock at: 'Foot' %}var nested = '{{ 'Nested' | t }}';{% endscriptblock %}")]
+    [InlineData("{% styleblock at: 'Head' %}.nested::after { content: '{{ 'Nested' | t }}'; }{% endstyleblock %}")]
     public void Extract_OrchardBlocks_VisitsNestedMessages(string source)
     {
         using var workspace = new TestWorkspace();
@@ -28,7 +30,13 @@ public sealed class LiquidLocalizationExtractorTests
     [Theory]
     [InlineData("{% resources type: 'Meta' %}")]
     [InlineData("{% script name: 'test', at: 'Foot' %}")]
-    public void Extract_ResourceTags_DoesNotFailParsing(string source)
+    [InlineData("{% shape_add_properties Model title: 'Title', value: value %}")]
+    [InlineData("{% shape_remove_property Model 'Title' %}")]
+    [InlineData("{% shape_remove_item Model 'Item' %}")]
+    [InlineData("{% shape_pager Model next_text: 'Next' %}")]
+    [InlineData("{% shape_cache Model cache_id: 'Key' %}")]
+    [InlineData("{% shape_tab Model 'Content' %}")]
+    public void Extract_OrchardTags_DoesNotFailParsing(string source)
     {
         using var workspace = new TestWorkspace();
         var catalog = new LocalizationCatalog();

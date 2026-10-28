@@ -1,0 +1,5 @@
+{%- shape_clear_alternates Model -%}
+{%- shape_type Model "ActionLink" -%}
+{%- shape_add_classes Model "page-link" -%}
+{%- assign _ = Model.Tag | tag_add_class: "page-item" -%}
+{{ Model | shape_render }}

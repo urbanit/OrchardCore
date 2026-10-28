@@ -8,6 +8,7 @@
     Converts the application into a modular OrchardCore CMS application with following themes.
 
     - TheAdmin Theme
+    - TheAdminLiquid Theme
     - SafeMode Theme
     - TheAgency Theme
     - TheBlog Theme
@@ -32,6 +33,7 @@
       When adding a reference to this list, please keep it ordered alphabetically, and set PrivateAssets="none"
     -->
     <ProjectReference Include="..\..\OrchardCore.Themes\SafeMode\SafeMode.csproj" PrivateAssets="none" />
+    <ProjectReference Include="..\..\OrchardCore.Themes\TheAdminLiquid\TheAdminLiquid.csproj" PrivateAssets="none" />
     <ProjectReference Include="..\..\OrchardCore.Themes\TheAgencyTheme\TheAgencyTheme.csproj" PrivateAssets="none" />
     <ProjectReference Include="..\..\OrchardCore.Themes\TheBlogTheme\TheBlogTheme.csproj" PrivateAssets="none" />
     <ProjectReference Include="..\..\OrchardCore.Themes\TheComingSoonTheme\TheComingSoonTheme.csproj" PrivateAssets="none" />

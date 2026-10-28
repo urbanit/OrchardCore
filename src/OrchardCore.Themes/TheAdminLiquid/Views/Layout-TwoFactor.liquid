@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="{{ Culture.Name }}" dir="{{ Culture.Dir }}" data-bs-theme="{{ TheAdmin.ThemeMode }}" data-tenant="{{ TheAdmin.Tenant }}" data-admin-prefix="{{ "~/" | append: TheAdmin.AdminUrlPrefix | href }}">
+<head>
+    <title>{% page_title Site.SiteName, position: "before" %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link type="image/x-icon" rel="shortcut icon" href="{{ "~/TheAdmin/favicon.ico" | href }}" />
+
+    <!-- This script can't wait till the footer -->
+    {% script name: "admin-main", version: "1", at: "Head" %}
+
+    <!-- Bootstrap CSS -->
+    {% if Culture.Dir == "rtl" %}
+        {% style name: "bootstrap-rtl", version: "5", at: "Head" %}
+    {% else %}
+        {% style name: "bootstrap", version: "5", at: "Head" %}
+    {% endif %}
+
+    <style>
+        body, html {
+            height: 100%;
+        }
+    </style>
+
+    {% style name: "font-awesome", at: "Head", version: "7" %}
+
+    {% resources type: "Header" %}
+    {% render_section "HeadMeta", required: false %}
+</head>
+<body>
+    <div class="d-flex align-items-center justify-content-center h-100">
+        <div class="container">
+            {% render_section "Header", required: false %}
+            {% render_section "Messages", required: false %}
+
+            {% render_body %}
+        </div>
+    </div>
+
+    {% render_section "Footer", required: false %}
+
+    {% resources type: "Footer" %}
+</body>
+</html>

@@ -1,0 +1,22 @@
+{%- comment -%}
+    The trail is rendered in the Breadcrumbs zone, which the layout renders right above the Title zone this shape is
+    rendered in. The trail then sits above the title, and stays above the content when the admin shows titles in the
+    fixed height top bar, which has no room for it. A trail rendered without a heading does not carry the title, so
+    it stays where it is.
+{%- endcomment -%}
+{%- capture nav -%}
+    {%- if Model.ShowTrail -%}
+        <nav aria-label="{{ "Breadcrumb" | t }}"{% if Model.Classes.size > 0 %} class="{{ Model.Classes | join: " " }}"{% endif %}{% if Model.Id != blank %} id="{{ Model.Id }}"{% endif %}><ol class="breadcrumb">
+            {%- for item in Model.Items -%}{{ item | shape_render }}{%- endfor -%}
+        </ol></nav>
+    {%- endif -%}
+{%- endcapture -%}
+
+{%- if Model.Heading != blank and nav != blank -%}
+    {% zone "Breadcrumbs" %}{{ nav | raw }}{% endzone %}
+{%- else -%}
+    {{ nav | raw }}
+{%- endif -%}
+{%- if Model.Heading != blank and Model.Title != blank %}
+<{{ Model.Heading }} class="oc-breadcrumb-title">{{ Model.Title }}</{{ Model.Heading }}>
+{%- endif -%}

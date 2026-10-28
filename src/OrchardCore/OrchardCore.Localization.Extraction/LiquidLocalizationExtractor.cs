@@ -85,8 +85,7 @@ public sealed class LiquidLocalizationExtractor
             {
                 "render_section", "page_title", "page_title_add_segment", "httpcontext_add_items",
                 "meta", "link", "script", "style", "resources", "helper", "shape", "cache_dependency", "cache_expires_on", "cache_expires_after",
-                "cache_expires_sliding", "shape_add_properties", "shape_remove_property", "shape_remove_item",
-                "shape_pager",
+                "cache_expires_sliding",
             })
             {
                 RegisterParserTag(tag, ArgumentsList, IgnoreParserTagAsync);
@@ -99,9 +98,15 @@ public sealed class LiquidLocalizationExtractor
             RegisterParserTag("shape_type", Primary.And(Primary), IgnoreParserTagAsync);
             RegisterParserTag("shape_display_type", Primary.And(Primary), IgnoreParserTagAsync);
             RegisterParserTag("shape_position", Primary.And(Primary), IgnoreParserTagAsync);
+            RegisterParserTag("shape_cache", Primary.And(ArgumentsList), IgnoreParserTagAsync);
+            RegisterParserTag("shape_tab", Primary.And(Primary), IgnoreParserTagAsync);
+            RegisterParserTag("shape_remove_item", Primary.And(Primary), IgnoreParserTagAsync);
+            RegisterParserTag("shape_add_properties", Primary.And(ArgumentsList), IgnoreParserTagAsync);
+            RegisterParserTag("shape_remove_property", Primary.And(Primary), IgnoreParserTagAsync);
+            RegisterParserTag("shape_pager", Primary.And(ArgumentsList), IgnoreParserTagAsync);
             RegisterParserTag("httpcontext_remove_items", Primary, IgnoreParserTagAsync);
 
-            foreach (var tag in new[] { "zone", "form", "cache", "a", "block" })
+            foreach (var tag in new[] { "zone", "form", "cache", "a", "block", "scriptblock", "styleblock" })
             {
                 RegisterParserBlock(tag, ArgumentsList, IgnoreParserBlockAsync);
             }

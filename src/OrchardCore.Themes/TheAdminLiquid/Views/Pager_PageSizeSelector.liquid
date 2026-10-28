@@ -1,0 +1,12 @@
+{%- assign items = Model.PageSizes -%}
+{%- if items.size > 0 -%}
+    {%- assign select_id = "pager-page-size-" | unique_id -%}
+    <div class="pager-page-size d-flex align-items-center ms-auto">
+        <label for="{{ select_id }}" class="col-form-label text-nowrap me-2">{{ "Items per page" | t }}</label>
+        <select id="{{ select_id }}" class="form-select w-auto" onchange="if (this.value) { window.location.href = this.value; }">
+            {%- for item in items %}
+                <option value="{{ item.Value }}"{% if item.Selected %} selected="selected"{% endif %}>{{ item.Text }}</option>
+            {%- endfor %}
+        </select>
+    </div>
+{%- endif -%}

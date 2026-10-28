@@ -1,0 +1,40 @@
+{%- comment -%}
+    The label of a menu item: a link to its page, or a button toggling its children when it has no page.
+    The attributes are written in the order a TagBuilder writes them, the classes in the order it adds them.
+{%- endcomment -%}
+{%- assign level = Model.Level -%}
+{%- assign has_items = Model.HasItems -%}
+{%- assign href = Model.Href | default: "" -%}
+{%- assign hash = Model.Hash -%}
+{%- assign target_id = "m" | append: hash -%}
+{%- assign is_toggle_only_item = false -%}
+{%- comment -%} When an item has children but no page of its own, the whole row toggles those children. {%- endcomment -%}
+{%- if has_items -%}
+    {%- if href == "" or href == "#" -%}{%- assign is_toggle_only_item = true -%}{%- endif -%}
+{%- endif -%}
+
+{%- assign classes = "" -%}
+{%- for class_name in Model.Classes -%}
+    {%- assign prefix = class_name | slice: 0, 11 -%}
+    {%- if prefix != "icon-class-" -%}
+        {%- assign classes = classes | append: " " | append: class_name -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- assign classes = classes | append: " item-label" -%}
+{%- if level == 1 and has_items -%}{%- assign classes = classes | append: " nav-group-label" -%}{%- endif -%}
+{%- assign classes = classes | strip -%}
+
+{%- comment -%} Morphing the shape to render its text, keeping Model untouched. {%- endcomment -%}
+{%- shape_clear_alternates Model -%}
+{%- shape_type Model "NavigationItemText" -%}
+{%- if Model.Id != blank -%}
+    {%- assign alternate = "NavigationItemText_Id__" | append: Model.Id -%}
+    {%- shape_add_alternates Model alternate -%}
+{%- endif -%}
+{%- capture text -%}{{ Model | shape_render }}{%- endcapture -%}
+
+{%- if is_toggle_only_item -%}
+<button aria-controls="{{ target_id }}" aria-expanded="false" class="{{ classes }}" data-admin-hash="{{ hash }}" data-bs-target="#{{ target_id }}" data-bs-toggle="collapse"{% if Model.Target != blank %} target="{{ Model.Target }}"{% endif %} type="button">{{ text | raw }}<span class="collapse-icon"><i class="fa-solid fa-chevron-{% if Culture.Dir == "rtl" %}left{% else %}right{% endif %} chevron" aria-hidden="true"></i></span></button>
+{%- else -%}
+<a class="{{ classes }}" data-admin-hash="{{ hash }}" href="{{ Model.Href }}"{% if Model.Target != blank %} target="{{ Model.Target }}"{% endif %}>{{ text | raw }}</a>
+{%- endif -%}

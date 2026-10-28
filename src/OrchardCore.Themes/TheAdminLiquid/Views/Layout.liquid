@@ -1,0 +1,83 @@
+{%- comment -%} Branding and Navbar are pre-rendered to allow resource injection. {%- endcomment -%}
+{%- capture branding -%}{% shape "AdminBranding" %}{%- endcapture -%}
+{%- assign navbar = TheAdmin.Navbar | shape_render -%}
+<!DOCTYPE html>
+<html lang="{{ Culture.Name }}" dir="{{ Culture.Dir }}" data-bs-theme="{{ TheAdmin.ThemeMode }}" data-tenant="{{ TheAdmin.Tenant }}" data-admin-prefix="{{ "~/" | append: TheAdmin.AdminUrlPrefix | href }}">
+<head>
+    <title>{% page_title Site.SiteName, position: "before" %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- This script can't wait till the footer -->
+    {% script name: "admin-main", version: "1", at: "Head" %}
+
+    {% style name: "TheAdminLayout", src: "~/TheAdmin/css/admin-layout.min.css", debug_src: "~/TheAdmin/css/admin-layout.css", at: "Head" %}
+
+    {% if Culture.Dir == "rtl" %}
+        {% style name: "bootstrap-rtl", version: "5", at: "Head" %}
+        {% style media: "all", name: "the-admin", version: "1", depends_on: "bootstrap-rtl,TheAdminLayout", at: "Head" %}
+    {% else %}
+        {% style name: "bootstrap", version: "5", at: "Head" %}
+        {% style media: "all", name: "the-admin", version: "1", depends_on: "bootstrap,TheAdminLayout", at: "Head" %}
+    {% endif %}
+    {% style name: "font-awesome", at: "Head", version: "7" %}
+    {% script name: "the-admin", version: "1", at: "Foot" %}
+
+    {% resources type: "Header" %}
+
+    {% render_section "HeadMeta", required: false %}
+</head>
+<body class="preload">
+    <div class="ta-wrapper">
+        <nav class="ta-navbar-top navbar text-bg-theme fixed-top">
+            <div class="container-fluid">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div class="brand-wrapper">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <button type="button" class="ta-sidebar-toggler" aria-controls="ta-left-sidebar" aria-expanded="false" aria-label="{{ "Show / hide menu" | t }}">
+                                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                            </button>
+
+                            {{ branding | raw }}
+
+                            {% if TheAdmin.DisplayTitlesInTopbar %}
+                                <div class="brand-wrapper-title">
+                                    {% render_section "Title", required: false %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {{ navbar }}
+                </div>
+            </div>
+        </nav>
+
+        <div class="ta-sidebar-backdrop"></div>
+
+        <div id="ta-left-sidebar" class="d-flex flex-column align-items-stretch">
+            {% render_section "Navigation", required: false %}
+            <div class="footer">
+                <button type="button" class="leftbar-compactor" title="{{ "Collapse / expand menu" | t }}">
+                    <span class="d-none">{{ "Collapse / expand menu" | t }}</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="ta-content" style="--oc-notify-offset-top: var(--oc-top-nav-height);">
+            {% render_section "Header", required: false %}
+            {% render_section "Messages", required: false %}
+            {% render_section "Breadcrumbs", required: false %}
+            {% unless TheAdmin.DisplayTitlesInTopbar %}
+                {% render_section "Title", required: false %}
+            {% endunless %}
+            {% render_body %}
+        </div>
+
+        {% render_section "Footer", required: false %}
+
+    </div>
+    <div id="confirmRemoveModalMetadata" data-title="{{ "Delete" | t }}" data-message="{{ "Are you sure you want to remove this element?" | t }}" data-ok-text="{{ "Ok" | t }}" data-cancel-text="{{ "Cancel" | t }}" data-ok-class="btn-danger" data-cancel-class="btn-secondary"></div>
+    {% resources type: "Footer" %}
+</body>
+</html>

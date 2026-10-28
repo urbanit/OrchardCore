@@ -1,0 +1,56 @@
+{%- comment -%}
+    A menu item: its link, and its children when it has some. A group is a first level item holding children.
+    Nothing is expanded when the menu is rendered, the script restores what the user last left open.
+    The attributes are written in the order a TagBuilder writes them, the classes in the order it adds them.
+{%- endcomment -%}
+{%- assign level = Model.Level -%}
+{%- assign has_items = Model.HasItems -%}
+{%- assign href = Model.Href | default: "" -%}
+{%- assign id = Model.Id -%}
+{%- assign target_id = "m" | append: Model.Hash -%}
+
+{%- assign classes = "" -%}
+{%- for class_name in Model.Classes -%}
+    {%- assign prefix = class_name | slice: 0, 11 -%}
+    {%- if prefix != "icon-class-" -%}
+        {%- assign classes = classes | append: " " | append: class_name -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- if Model.Selected -%}
+    {%- assign has_selected_child = false -%}
+    {%- for child in Model.Items -%}
+        {%- if child.Selected -%}{%- assign has_selected_child = true -%}{%- endif -%}
+    {%- endfor -%}
+    {%- assign classes = classes | append: " active" -%}
+    {%- unless has_selected_child -%}{%- assign classes = classes | append: " current" -%}{%- endunless -%}
+{%- endif -%}
+{%- if level == 1 -%}{%- assign classes = classes | append: " nav-group" -%}{%- endif -%}
+{%- if has_items -%}{%- assign classes = classes | append: " has-items" -%}{%- endif -%}
+{%- assign classes = classes | strip -%}
+
+{%- comment -%} Morphing the shape to render its link, keeping Model untouched. {%- endcomment -%}
+{%- shape_clear_alternates Model -%}
+{%- shape_type Model "NavigationItemLink" -%}
+{%- if id != blank -%}
+    {%- assign alternate = "NavigationItemLink_Id__" | append: id -%}
+    {%- shape_add_alternates Model alternate -%}
+{%- endif -%}
+
+{%- if has_items -%}
+    {%- comment -%}
+        The link is rendered before the children: rendering the same model again, as the morphed shape does, is
+        counted until another model is rendered, so the link of an item rendered after the links of its children
+        would be counted with them.
+    {%- endcomment -%}
+    {%- capture link -%}{{ Model | shape_render }}{%- endcapture -%}
+    {%- capture children -%}{%- for item in Model.Items -%}{{ item | shape_render }}{%- endfor -%}{%- endcapture -%}
+<li{% if classes != "" %} class="{{ classes }}"{% endif %}><figure{% if id != blank %} aria-labelledby="{{ id }}"{% endif %}><figcaption class="nav-item-row"{% if id != blank %} id="{{ id }}"{% endif %}>{{ link | raw }}
+    {%- if href != "" and href != "#" -%}
+        {%- assign text = Model.Text | append: "" -%}
+        <button aria-controls="{{ target_id }}" aria-expanded="false" aria-label="{{ "Toggle {0}" | t: text }}" class="nav-toggle" data-bs-target="#{{ target_id }}" data-bs-toggle="collapse" type="button"><i class="fa-solid fa-chevron-{% if Culture.Dir == "rtl" %}left{% else %}right{% endif %} chevron" aria-hidden="true"></i></button>
+    {%- endif -%}
+</figcaption><ul class="collapse{% if level == 1 %} nav-group-items{% endif %}" data-title="{{ Model.Text }}" id="{{ target_id }}">{{ children | raw }}</ul></figure></li>
+{%- else -%}
+    {%- capture link -%}{{ Model | shape_render }}{%- endcapture -%}
+<li{% if classes != "" %} class="{{ classes }}"{% endif %}{% if id != blank %} id="{{ id }}"{% endif %}><figure><figcaption class="nav-item-row">{{ link | raw }}</figcaption></figure></li>
+{%- endif -%}

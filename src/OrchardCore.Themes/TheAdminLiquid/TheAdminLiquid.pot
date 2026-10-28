@@ -1,0 +1,114 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TheAdminLiquid\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-OrchardCore-Catalog-Schema: 1\n"
+
+#: Views/Breadcrumb.liquid
+msgctxt "TheAdminLiquid.Views.Breadcrumb"
+msgid "Breadcrumb"
+msgstr ""
+
+#: Views/Layout.liquid
+msgctxt "TheAdminLiquid.Views.Layout"
+msgid "Are you sure you want to remove this element?"
+msgstr ""
+
+#: Views/Layout.liquid
+msgctxt "TheAdminLiquid.Views.Layout"
+msgid "Cancel"
+msgstr ""
+
+#: Views/Layout.liquid
+msgctxt "TheAdminLiquid.Views.Layout"
+msgid "Collapse / expand menu"
+msgstr ""
+
+#: Views/Layout.liquid
+msgctxt "TheAdminLiquid.Views.Layout"
+msgid "Delete"
+msgstr ""
+
+#: Views/Layout.liquid
+msgctxt "TheAdminLiquid.Views.Layout"
+msgid "Ok"
+msgstr ""
+
+#: Views/Layout.liquid
+msgctxt "TheAdminLiquid.Views.Layout"
+msgid "Show / hide menu"
+msgstr ""
+
+#: Views/Navigation-admin.liquid
+msgctxt "TheAdminLiquid.Views.Navigation-admin"
+msgid "Admin menu"
+msgstr ""
+
+#: Views/Navigation-admin.liquid
+msgctxt "TheAdminLiquid.Views.Navigation-admin"
+msgid "Filter"
+msgstr ""
+
+#: Views/Navigation-admin.liquid
+msgctxt "TheAdminLiquid.Views.Navigation-admin"
+msgid "Filter the admin menu"
+msgstr ""
+
+#. Format arguments: {0}
+#: Views/NavigationItem-admin.liquid
+#, csharp-format
+msgctxt "TheAdminLiquid.Views.NavigationItem-admin"
+msgid "Toggle {0}"
+msgstr ""
+
+#: Views/Pager.liquid
+msgctxt "TheAdminLiquid.Views.Pager"
+msgid "Listing pages"
+msgstr ""
+
+#: Views/Pager_First.liquid
+msgctxt "TheAdminLiquid.Views.Pager_First"
+msgid "Go to first page."
+msgstr ""
+
+#: Views/Pager_Last.liquid
+msgctxt "TheAdminLiquid.Views.Pager_Last"
+msgid "Go to last page."
+msgstr ""
+
+#: Views/Pager_Next.liquid
+msgctxt "TheAdminLiquid.Views.Pager_Next"
+msgid "Go to next page."
+msgstr ""
+
+#: Views/Pager_PageSizeSelector.liquid
+msgctxt "TheAdminLiquid.Views.Pager_PageSizeSelector"
+msgid "Items per page"
+msgstr ""
+
+#: Views/Pager_Previous.liquid
+msgctxt "TheAdminLiquid.Views.Pager_Previous"
+msgid "Go to previous page."
+msgstr ""
+
+#: Views/ToggleTheme.liquid
+msgctxt "TheAdminLiquid.Views.ToggleTheme"
+msgid "Auto"
+msgstr ""
+
+#: Views/ToggleTheme.liquid
+msgctxt "TheAdminLiquid.Views.ToggleTheme"
+msgid "Dark"
+msgstr ""
+
+#: Views/ToggleTheme.liquid
+msgctxt "TheAdminLiquid.Views.ToggleTheme"
+msgid "Light"
+msgstr ""
+
+#: Views/ToggleTheme.liquid
+msgctxt "TheAdminLiquid.Views.ToggleTheme"
+msgid "Toggle theme"
+msgstr ""

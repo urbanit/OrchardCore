@@ -1,0 +1,7 @@
+{%- shape_clear_alternates Model -%}
+{%- shape_type Model "Pager_Link" -%}
+{%- assign value = '<i class="fa-solid fa-angles-left"></i>' | html_content -%}
+{%- shape_add_properties Model value: value -%}
+{%- assign title = "Go to first page." | t -%}
+{%- assign _ = Model.Tag | tag_merge_attribute: "title", title -%}
+{{ Model | shape_render }}

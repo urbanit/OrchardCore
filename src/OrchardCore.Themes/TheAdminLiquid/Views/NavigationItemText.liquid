@@ -1,0 +1,17 @@
+{%- assign icon_classes = "" -%}
+{%- for class_name in Model.Classes -%}
+    {%- assign prefix = class_name | slice: 0, 11 -%}
+    {%- if prefix == "icon-class-" -%}
+        {%- assign icon_class = class_name | remove_first: "icon-class-" -%}
+        {%- assign icon_classes = icon_classes | append: " " | append: icon_class -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- assign icon_classes = icon_classes | strip -%}
+
+{% if icon_classes != "" -%}
+    <span class="icon"><i class="{{ icon_classes }}" aria-hidden="true"></i></span>
+{%- else -%}
+    <span class="icon icon-none"></span>
+{%- endif %}
+
+<span class="title">{{ Model | admin_menu_text }}</span>
