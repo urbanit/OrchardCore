@@ -32,7 +32,9 @@ public sealed class Startup : StartupBase
             options.MemberAccessStrategy.Register<NavigationItemViewModel>();
             options.MemberAccessStrategy.Register<MenuItem>();
 
-            // The type of a notification is rendered by its name, e.g. 'Success', as in Razor.
+            // A notification is also the list of its properties, used as the arguments of a shape, which
+            // Liquid would take for an array. Its type is rendered by its name, e.g. 'Success', as in Razor.
+            options.ValueConverters.Add(value => value is NotifyEntry entry ? new ObjectValue(entry) : null);
             options.ValueConverters.Add(value => value is NotifyType type ? new StringValue(type.ToString()) : null);
             options.MemberAccessStrategy.Register<NotifyEntry>();
 
